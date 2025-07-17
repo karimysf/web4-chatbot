@@ -25,6 +25,7 @@ DB_USERNAME=os.getenv('DB_USERNAME')
 DB_HOST=os.getenv('DB_HOST')
 DB_PASSWORD=os.getenv('DB_PASSWORD')
 DB_NAME=os.getenv('DB_NAME')
+DB_PORT=os.getenv('DB_PORT')
 APP_SECRET_KEY=os.getenv('APP_SECRET_KEY')
 UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER')
 GROQ_API_KEY=os.getenv('GROQ_API_KEY')
@@ -42,10 +43,12 @@ def get_db_connection():
     conn = mysql.connector.connect(
         host=DB_HOST,
         user=DB_USERNAME,
+        port=DB_PORT,
         password=DB_PASSWORD,
         database=DB_NAME
     )
     return conn
+print(DB_HOST)
 
 # Ajoutez cette fonction après la création de l'application Flask
 def urlize(text, max_length=None):
