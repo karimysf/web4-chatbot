@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JobsBot AI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      background-color: #f0f2f5;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 280px;
+      background-color: #075e54;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      color: white;
+    }
+
+    .sidebar h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    .sidebar button {
+      background-color: #128c7e;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 0;
+      width: 100%;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .sidebar button:hover {
+      background-color: #075e54;
+    }
+
+    .delete {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .delete:hover {
+      background-color: #c82333;
+    }
+
+    .delete img {
+      width: 18px;
+      height: 18px;
+      filter: brightness(0) invert(1);
+    }
+
+    .chat-container {
+      flex: 1;
+      background-color: #e5ddd5;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .chat-header {
+      text-align: right;
+      padding: 20px;
+      font-size: 24px;
+      color: #667781;
+    }
+
+    .chat-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .chat-body img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+
+    .chat-footer {
+      padding: 20px;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: sticky;
+      bottom: 0;
+    }
+
+    .chat-footer input {
+      flex: 1;
+      max-width: 500px;
+      padding: 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      margin-right: 10px;
+      outline: none;
+    }
+
+    .chat-footer button {
+      background-color: #128c7e;
+      border: none;
+      color: white;
+      padding: 12px 16px;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .chat-footer button:hover {
+      background-color: #075e54;
+    }
+
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background-color: #dcf8c6;
+      color: #000;
+      border-radius: 18px 18px 0 18px;
+      padding: 10px 15px;
+      margin: 10px 0;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background-color: #fff;
+      color: #000;
+      border-radius: 18px 18px 18px 0;
+      padding: 10px 15px;
+      margin: 10px 0;
+      max-width: 70%;
+      word-wrap: break-word;
+      border: 1px solid #e0e0e0;
+    }
+
+    .history-container {
+      overflow-y: auto;
+      max-height: 300px;
+      margin-bottom: 20px;
+    }
+
+    .conversation-item {
+      border-bottom: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      position: relative;
+      background-color: transparent;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    .conversation-item:hover {
+      background-color: #0d7c6c;
+    }
+
+    .conversation-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .history-delete-btn {
+      background-color: transparent;
+      border: none;
+      font-size: 16px;
+      color: #ffffffcc;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .conversation-item:hover .history-delete-btn {
+      opacity: 1;
+    }
+
+    .history-delete-btn:hover {
+      color: #ffd700;
+    }
+  </style>
+</head>
+<body>
+  <!-- Barre latérale -->
+  <div class="sidebar">
+    <h1>JobsBot AI</h1>
+    <button onclick="newChat()">Nouveau chat</button>
+    <h2>Historique</h2>
+    <div id="history-container" class="history-container"></div>
+    <div class="delete" onclick="confirmDeleteAll()">
+      <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" alt="delete icon" />
+      Effacer les discussions
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="chat-container">
+    <div class="chat-header">...</div>
+
+    <div class="chat-body">
+      <img src="/static/PROFIL1.png" alt="Web4.Jobs Logo">
+      <div id="chat-messages" class="chat-messages"></div>
+    </div>
+
+    <div class="chat-footer">
+      <input type="text" id="messageInput" placeholder="Message" />
+      <button onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const emojis = ["😊", "😃", "😄", "😍", "😎", "🤗", "🤩", "😇", "😉", "😌"];
+
+    function getRandomEmoji() {
+      return emojis[Math.floor(Math.random() * emojis.length)];
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+      if (message !== '') {
+        fetch('/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ question: message }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          const chatMessages = document.getElementById('chat-messages');
+
+          // Ajouter le message de l'utilisateur
+          const userMessage = document.createElement('div');
+          userMessage.className = 'user-message';
+          userMessage.textContent = message;
+          chatMessages.appendChild(userMessage);
+
+          // Ajouter la réponse du bot avec des emojis
+          const botMessage = document.createElement('div');
+          botMessage.className = 'bot-message';
+          botMessage.textContent = data.response + " " + getRandomEmoji();
+          chatMessages.appendChild(botMessage);
+
+          input.value = '';
+
+          // Recharger l'historique après chaque échange de messages
+          loadHistory();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      }
+    }
+
+    function loadHistory() {
+      fetch('/get-history')
+        .then(response => response.json())
+        .then(data => {
+          const historyContainer = document.getElementById('history-container');
+          historyContainer.innerHTML = '';
+
+          data.forEach(session => {
+            const firstMsg = session.conversations[0]?.message || "Conversation vide";
+
+            const conversationElement = document.createElement('div');
+            conversationElement.className = 'conversation-item';
+            conversationElement.innerHTML = `
+              <div class="conversation-meta">
+                <div>
+                  <p><strong>Session:</strong> ${new Date(session.created_at).toLocaleString()}</p>
+                  <p><small>Messages: ${firstMsg.substring(0, 60)}...</small></p>
+                </div>
+                <button class="history-delete-btn" onclick="deleteSession(event, '${session.session_id}')" title="Supprimer cette session">
+                  ....
+                </button>
+              </div>
+            `;
+
+            conversationElement.onclick = function () {
+              displayConversation(session.conversations);
+            };
+
+            historyContainer.appendChild(conversationElement);
+          });
+        })
+        .catch(error => console.error('Erreur:', error));
+    }
+
+    function displayConversation(conversations) {
+      const chatMessages = document.getElementById('chat-messages');
+      chatMessages.innerHTML = '';
+
+      conversations.forEach(pair => {
+        const userMessage = document.createElement('div');
+        userMessage.className = 'user-message';
+        userMessage.textContent = pair.message;
+        chatMessages.appendChild(userMessage);
+
+        const botMessage = document.createElement('div');
+        botMessage.className = 'bot-message';
+        botMessage.textContent = pair.response + " " + getRandomEmoji();
+        chatMessages.appendChild(botMessage);
+      });
+
+      // Scroll en bas
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function deleteSession(event, sessionId) {
+      event.stopPropagation(); // Pour ne pas déclencher le onclick du bloc entier
+      if (confirm("Voulez-vous vraiment supprimer cette session ?")) {
+        fetch(`/delete-session/${sessionId}`, {
+          method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "success") {
+            loadHistory(); // Rafraîchir l'affichage
+            document.getElementById('chat-messages').innerHTML = ''; // Optionnel : vider le chat
+          }
+        })
+        .catch(error => console.error("Erreur lors de la suppression :", error));
+      }
+    }
+
+    function confirmDelete(conversationId, event) {
+      event.stopPropagation();
+      if (confirm("Êtes-vous sûr de vouloir supprimer cette conversation ?")) {
+        deleteConversation(conversationId);
+      }
+    }
+
+    function confirmDeleteAll() {
+      if (confirm("Êtes-vous sûr de vouloir supprimer toutes les conversations ?")) {
+        deleteAllConversations();
+      }
+    }
+
+    function deleteConversation(conversationId) {
+      fetch(`/delete-conversation/${conversationId}`, {
+        method: 'DELETE',
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.status === 'success') {
+              loadHistory();
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+      });
+    }
+
+    function deleteAllConversations() {
+      fetch('/delete-all-conversations', {
+        method: 'DELETE',
+      })
+      .then(response => response.json())
+d      .then(data => {
+          if (data.status === 'success') {
+              loadHistory();
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+      });
+    }
+
+    function newChat() {
+      fetch("/new-chat", { method: "POST" })
+        .then(() => {
+          document.getElementById('chat-messages').innerHTML = '';
+          loadHistory();
+        });
+    }
+
+    // Charger l'historique au chargement de la page
+    document.addEventListener('DOMContentLoaded', loadHistory);
+  </script>
+</body>
+</html>
+
+

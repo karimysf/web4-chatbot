@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web4.Jobs - Connexion</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">  
+</head>
+<body>
+    <div class="background-pattern"></div>
+
+    <div class="login-container">
+        <div class="logo-header">
+            <img src="/static/PROFIL.png" alt="Web4.Jobs Logo" class="logo">
+            <div class="welcome-text">
+                <h1>Bienvenue sur Web4.Jobs</h1>
+                <p>Connectez-vous à votre espace de formation</p>
+            </div>
+        </div>
+
+        <form class="login-form" action="/authenticate" method="POST">
+            <div class="form-group">
+                <label for="user_type">Profil utilisateur</label>
+                <i class="fas fa-user-tag input-icon"></i>
+                <select id="user_type" name="user_type" class="form-control" required>
+                    <option value="" disabled selected>Sélectionnez votre profil</option>
+                    <option value="Apprenants">Apprenant</option>
+                    <option value="ResponsablePedagogique">Responsable Pédagogique</option>
+                    <option value="Responsable_de_centre_de_coding">Responsable de centre de coding</option>
+                    <option value="Administrateur">Administrateur</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Adresse e-mail</label>
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" id="email" name="email" class="form-control" placeholder="exemple@web4jobs.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div class="form-group">
+                <label for="coupon">Code coupon (optionnel)</label>
+                <i class="fas fa-ticket-alt input-icon"></i>
+                <input type="text" id="coupon" name="coupon" class="form-control" placeholder="Entrez votre code promotionnel">
+            </div>
+
+            <button type="submit" class="login-button">
+                Se connecter <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="help-message">
+            <p>Besoin d'aide pour se connecter 👋. 
+                <a href="mailto:mulongochristian044@gmail.com" class="contact-link">
+                    Cliquez ici pour contacter l'administrateur.
+                </a>
+            </p>
+        </div>
+
+        <p class="footer-text">© 2025 Web4.Jobs. Tous droits réservés.</p>
+    </div>
+
+    <div class="image-container"></div>
+</body>
+</html>

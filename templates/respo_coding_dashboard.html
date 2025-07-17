@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Web4.Jobs - Dashboard Responsable de centre</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='respo_coding_dashboard.css') }}">  
+</head>
+<body>
+    <button id="menu-toggle" class="menu-toggle">☰</button>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="/static/PROFIL.png" alt="Web4.Jobs Logo">
+        </div>
+        <div class="menu">
+            <a href="/dashboard"><span class="icon">🏠</span> Accueil</a>
+            <a href="/centre-courses"><span class="icon">📊</span> Listes des parcours de formation  </a>
+            <a href="/Responsable_de_centre_de_coding-knowledge-base"><span class="icon">📚</span> Base de connaissances</a>
+            <a href="/chatbot"><span class="icon">🤖</span> Chatbot</a>
+            <a href="/messagerie">
+    <span class="icon">💬</span> Messagerie
+    <span id="notification-badge" style="display: none;" class="unread-count">3</span>
+</a>
+
+
+            <a href="/centre-apprenants"><span class="icon">👥</span> Apprenants</a>
+            <a href="/rapports"><span class="icon">📈</span> Rapports</a>
+            <a href="/logout"><span class="icon">🔓</span> Déconnexion</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="welcome-banner">
+            <h2>Bienvenue !</h2>
+        </div>
+
+        <div class="carousel-container">
+            <div class="slide active">
+                <img src="{{ url_for('static', filename='Arriere plan 1.png') }}" alt="Arriere plan 1">
+            </div>
+            <div class="slide">
+                <img src="{{ url_for('static', filename='Arriere plan 2.png') }}" alt="Arriere plan 2">
+            </div>
+            <a class="discover-button" href="https://w4j.yool.education/a-propos">Nous découvrir ➔</a>
+        </div>
+
+        <div class="dashboard-section stats-container">
+            <div class="stat-card">
+                <div class="icon">📚</div>
+                <div class="info">
+                    <h3>120+</h3>
+                    <p>Cours et tutoriels Vidéos à votre disposition</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">👥</div>
+                <div class="info">
+                    <h3>2,500+</h3>
+                    <p>Rejoignez notre communauté d'apprenants</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">😊</div>
+                <div class="info">
+                    <h3>98%</h3>
+                    <p>Nos apprenants recommandent nos formations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let slideIndex = 1;
+        function showSlides() {
+            const slides = document.getElementsByClassName("slide");
+            const total = slides.length;
+            for (let i = 0; i < total; i++) {
+                slides[i].classList.remove("active");
+            }
+            slides[(slideIndex - 1) % total].classList.add("active");
+            slideIndex++;
+        }
+        setInterval(showSlides, 10000);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            });
+        });
+
+        function checkMessages() {
+            fetch('/check-messages')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notification-badge');
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la vérification des messages:", error);
+                });
+        }
+        setInterval(checkMessages, 30000);
+        checkMessages(); // Initial check
+    </script>
+
+    <script>
+        let lastScrollTop = 0;
+        const menuToggle = document.getElementById('menu-toggle');
+        window.addEventListener("scroll", function () {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop) {
+                // Scrolling down
+                menuToggle.classList.add("hidden");
+            } else {
+                // Scrolling up
+                menuToggle.classList.remove("hidden");
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // avoid negative values
+        }, false);
+    </script>
+</body>
+</html>

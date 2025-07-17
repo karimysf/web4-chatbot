@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation - Web4.Jobs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #7c4dff;
+            --primary-hover: #6a40d0;
+            --secondary-color: #f5f7fa;
+            --text-color: #333;
+            --text-light: #666;
+            --border-color: #e1e4e8;
+            --user-bubble: #7c4dff;
+            --other-bubble: #f0f2f5;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .conversation-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .conversation-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+
+        .header-info h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 3px;
+        }
+
+        .header-info p {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .messages-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-color);
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 15px;
+        }
+
+        .sent .message-bubble {
+            background-color: var(--user-bubble);
+            color: white;
+            border-top-right-radius: 4px;
+            margin-left: auto;
+        }
+
+        .received .message-bubble {
+            background-color: var(--other-bubble);
+            color: var(--text-color);
+            border-top-left-radius: 4px;
+        }
+
+        .message-bubble a {
+            color: inherit;
+            text-decoration: underline;
+            word-break: break-word;
+        }
+
+        .message-subject {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .response-form {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+        }
+
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 15px;
+            resize: vertical;
+            transition: border 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .emoji-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            color: var(--text-light);
+            transition: color 0.2s;
+        }
+
+        .emoji-button:hover {
+            color: var(--primary-color);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .emoji-container {
+            position: relative;
+        }
+
+        .emoji-popup {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 15px;
+            z-index: 100;
+            display: none;
+        }
+
+        .emoji-popup.active {
+            display: block;
+        }
+
+        .emoji-search {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .emoji-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .emoji-tabs button {
+            border: none;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .emoji-tabs button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .emoji-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .emoji-list span {
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .emoji-list span:hover {
+            transform: scale(1.2);
+        }
+
+        .status-indicator {
+            font-size: 12px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .status-indicator::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+            margin-right: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .conversation-container {
+                padding: 0 15px;
+            }
+            
+            .messages-container, .response-form {
+                padding: 15px;
+            }
+            
+            .message-bubble {
+                max-width: 90%;
+            }
+        }
+
+        /* Animation pour les nouveaux messages */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="conversation-container">
+        <div class="conversation-header">
+            <div class="avatar">{{ correspondant|first|upper }}</div>
+            <div class="header-info">
+                <h2>Conversation avec {{ correspondant }}</h2>
+                <p>Messagerie Web4.Jobs</p>
+            </div>
+        </div>
+
+        <div class="messages-container">
+            {% for msg in messages %}
+            <div class="message {% if msg.expediteur_email == current_user %}sent{% else %}received{% endif %}">
+                <div class="message-avatar">
+                    {% if msg.expediteur_email == current_user %}
+                        {{ current_user|first|upper }}
+                    {% else %}
+                        {{ correspondant|first|upper }}
+                    {% endif %}
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">
+                            {% if msg.expediteur_email == current_user %}
+                                Vous
+                            {% else %}
+                                {{ msg.expediteur_email }}
+                            {% endif %}
+                        </span>
+                        <span class="message-time">{{ msg.date_envoi.strftime('%d/%m/%Y à %H:%M') }}</span>
+                    </div>
+                    <div class="message-bubble">
+                        {% if msg.sujet %}<div class="message-subject">{{ msg.sujet }}</div>{% endif %}
+                        <div class="message-text">{{ msg.contenu | urlize | safe }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="response-form">
+            <div class="form-title">Répondre à {{ correspondant }}</div>
+            <form action="/messagerie/envoyer" method="POST">
+                <input type="hidden" name="destinataire" value="{{ correspondant }}">
+                <div class="form-group">
+                    <textarea name="contenu" placeholder="Écrivez votre message ici..." required></textarea>
+                </div>
+                <div class="form-actions">
+                    <div class="emoji-container">
+                        <button type="button" class="emoji-button" onclick="toggleEmojiPicker()">😊</button>
+                        <div id="emojiPicker" class="emoji-popup">
+                            <input type="text" id="emojiSearch" class="emoji-search" placeholder="Rechercher un emoji...">
+                            <div class="emoji-tabs" id="emojiTabs"></div>
+                            <div class="emoji-list" id="emojiList"></div>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <span>Envoyer</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left: 5px;">
+                            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const emojiData = {
+            "😃 Smileys": ["😀", "😂", "😎", "😊", "😍", "😘", "😢", "😡", "😱", "🤔", "😴", "🤩", "🥳", "🥺", "🤯"],
+            "🎉 Événements": ["🎉", "🎊", "🎈", "🎂", "🥳", "🎁", "🪩", "🎄", "🎃", "🎆", "🎇"],
+            "🔥 Motivation": ["🔥", "💯", "🚀", "✨", "🎯", "🧠", "💪", "👑", "🏆", "⭐", "🌟"],
+            "❤️ Sentiments": ["❤️", "💔", "💖", "💕", "💘", "💞", "❣️", "💓", "💗", "💙", "💚"],
+            "💼 Pro": ["💼", "📈", "📊", "📅", "🕒", "💬", "📝", "📌", "🔍", "📂", "📎"],
+            "🌍 Voyage": ["🌍", "✈️", "🗺️", "🏝️", "⛰️", "🏕️", "🌆", "🏖️", "🗽", "🏯"],
+            "🍔 Nourriture": ["🍔", "🍕", "🍣", "🍜", "🍩", "🍎", "🍇", "🍫", "☕", "🍷"],
+            "⚽ Sports": ["⚽", "🏀", "🎾", "🏈", "⚾", "🏓", "🏸", "🥊", "🏊", "🚴"]
+        };
+
+        let activeCategory = Object.keys(emojiData)[0];
+
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            picker.classList.toggle('active');
+            
+            // Positionner le sélecteur d'emoji au-dessus du bouton
+            if (picker.classList.contains('active')) {
+                const button = document.querySelector('.emoji-button');
+                const buttonRect = button.getBoundingClientRect();
+                picker.style.left = `${buttonRect.left}px`;
+                picker.style.bottom = `${window.innerHeight - buttonRect.top + 10}px`;
+            }
+        }
+
+        function insertEmoji(emoji) {
+            const textarea = document.querySelector('textarea[name="contenu"]');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            textarea.value = textarea.value.substring(0, start) + emoji + textarea.value.substring(end);
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('emojiTabs');
+            tabsContainer.innerHTML = '';
+            
+            Object.keys(emojiData).forEach(category => {
+                const btn = document.createElement('button');
+                btn.innerText = category;
+                btn.onclick = () => {
+                    document.querySelectorAll('.emoji-tabs button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activeCategory = category;
+                    renderEmojis(category);
+                };
+                tabsContainer.appendChild(btn);
+            });
+            
+            // Activer le premier onglet
+            tabsContainer.firstChild.classList.add('active');
+            renderEmojis(activeCategory);
+        }
+
+        function renderEmojis(category, filter = "") {
+            const listContainer = document.getElementById('emojiList');
+            listContainer.innerHTML = '';
+            
+            emojiData[category].forEach(emoji => {
+                if (!filter || emoji.includes(filter)) {
+                    const span = document.createElement('span');
+                    span.innerText = emoji;
+                    span.onclick = () => {
+                        insertEmoji(emoji);
+                        toggleEmojiPicker();
+                    };
+                    listContainer.appendChild(span);
+                }
+            });
+        }
+
+        function handleSearch() {
+            const searchInput = document.getElementById('emojiSearch').value.trim();
+            renderEmojis(activeCategory, searchInput);
+        }
+
+        // Fermer le sélecteur d'emoji quand on clique ailleurs
+        document.addEventListener('click', function(event) {
+            const picker = document.getElementById('emojiPicker');
+            const button = document.querySelector('.emoji-button');
+            
+            if (!picker.contains(event.target) && !button.contains(event.target)) {
+                picker.classList.remove('active');
+            }
+        });
+
+        // Initialisation
+        window.onload = () => {
+            renderTabs();
+            document.getElementById('emojiSearch').addEventListener('input', handleSearch);
+            
+            // Faire défiler vers le bas pour voir les derniers messages
+            const messagesContainer = document.querySelector('.messages-container');
+            if (messagesContainer) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        };
+    </script>
+</body>
+</html>

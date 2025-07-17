@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouveau message - Web4.Jobs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6C5CE7;
+            --primary-light: #A29BFE;
+            --secondary-color: #00CEFF;
+            --dark-color: #2D3436;
+            --light-color: #F5F6FA;
+            --success-color: #00B894;
+            --border-color: #DFE6E9;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            margin: 0;
+            padding: 20px;
+            color: var(--dark-color);
+            min-height: 100vh;
+        }
+        
+        .message-form-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .message-form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+        
+        h2 {
+            margin: 0 0 30px 0;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--dark-color);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 3px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+            font-size: 15px;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+            background-color: white;
+        }
+        
+        textarea {
+            height: 200px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+        }
+        
+        .cancel-btn {
+            background: white;
+            color: var(--dark-color);
+            padding: 14px 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .cancel-btn:hover {
+            background: #f8f9fa;
+            border-color: #ccc;
+        }
+        
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tool-button {
+            background: #f1f3f5;
+            color: var(--dark-color);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .tool-button:hover {
+            background: #e9ecef;
+        }
+        
+        .tool-button.active {
+            background: var(--primary-light);
+            color: white;
+        }
+        
+        .emoji-container {
+            position: relative;
+        }
+        
+        .emoji-popup {
+            display: none;
+            position: absolute;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 350px;
+            max-width: 90vw;
+            z-index: 1000;
+            bottom: 100%;
+            left: 0;
+            margin-bottom: 10px;
+        }
+        
+        .emoji-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .emoji-tabs button {
+            border: none;
+            background: #f1f3f5;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .emoji-tabs button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .emoji-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .emoji-list span {
+            font-size: 1.8em;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .emoji-list span:hover {
+            background-color: #f1f3f5;
+            transform: scale(1.1);
+        }
+        
+        .emoji-search-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .emoji-search {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            font-size: 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #fafafa;
+        }
+        
+        .emoji-search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+        
+        .character-count {
+            text-align: right;
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .attachment-preview {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .attachment-item {
+            background: #f1f3f5;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .remove-attachment {
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .message-form-container {
+                padding: 25px 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column-reverse;
+                gap: 10px;
+            }
+            
+            .submit-btn, .cancel-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .emoji-popup {
+                width: 280px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="message-form-container">
+        <h2><i class="fas fa-paper-plane" style="margin-right: 10px;"></i> Nouveau message</h2>
+        
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="destinataire"><i class="fas fa-user" style="margin-right: 8px;"></i> Destinataire</label>
+                <input type="email" id="destinataire" name="destinataire" required placeholder="email@exemple.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="sujet"><i class="fas fa-tag" style="margin-right: 8px;"></i> Sujet</label>
+                <input type="text" id="sujet" name="sujet" required placeholder="Objet de votre message">
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-comment" style="margin-right: 8px;"></i> Message</label>
+                
+                <div class="toolbar">
+                    <button type="button" class="tool-button" onclick="toggleEmojiPicker()">
+                        <i class="far fa-smile"></i> Emoji
+                    </button>
+                    <button type="button" class="tool-button" onclick="formatText('bold')">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button type="button" class="tool-button" onclick="formatText('italic')">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button type="button" class="tool-button" onclick="formatText('underline')">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                    
+                </div>
+                
+                <div class="emoji-container">
+                    <div id="emojiPicker" class="emoji-popup">
+                        <div class="emoji-search-container">
+                            <i class="fas fa-search emoji-search-icon"></i>
+                            <input type="text" id="emojiSearch" class="emoji-search" placeholder="Rechercher un emoji..." oninput="handleSearch()">
+                        </div>
+                        <div class="emoji-tabs" id="emojiTabs"></div>
+                        <div class="emoji-list" id="emojiList"></div>
+                    </div>
+                </div>
+                
+                <textarea id="messageContent" name="contenu" required placeholder="Écrivez votre message ici..."></textarea>
+                <div class="character-count"><span id="charCount">0</span>/2000 caractères</div>
+                
+                <div class="attachment-preview" id="attachmentPreview"></div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="/messagerie" class="cancel-btn">
+                    <i class="fas fa-times" style="margin-right: 8px;"></i> Annuler
+                </a>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Envoyer
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // Données d'emojis enrichies
+        const emojiData = {
+            "😃 Smileys": ["😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊", "😋", "😎", "😍", "😘", "😗", "😙", "😚", "☺️", "🙂", "🤗", "🤔"],
+            "❤️ Emotions": ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔", "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟"],
+            "👋 Gestes": ["👋", "🤚", "🖐️", "✋", "🖖", "👌", "🤏", "✌️", "🤞", "🤟", "🤘", "🤙", "👈", "👉", "👆", "👇", "☝️", "👍", "👎", "✊", "👊"],
+            "🌍 Nature": ["🌍", "🌎", "🌏", "🌐", "🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘", "🌙", "🌚", "🌛", "🌜", "☀️", "🌝", "🌞", "⭐", "🌟"],
+            "🍔 Nourriture": ["🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🍈", "🍒", "🍑", "🍍", "🥝", "🥥", "🍅", "🍆", "🥑", "🥦", "🥕", "🌽"],
+            "⚽ Activités": ["⚽", "🏀", "🏈", "⚾", "🥎", "🎾", "🏐", "🏉", "🥏", "🎱", "🪀", "🏓", "🏸", "🏒", "🏑", "🥍", "🏏", "🪃", "🥅", "⛳", "🪁"],
+            "🎨 Objets": ["🎨", "🎭", "🖼️", "🎪", "🎤", "🎧", "🎼", "🎹", "🥁", "🪘", "🎷", "🎺", "🪗", "🎸", "🪕", "🎻", "🎲", "♟️", "🎯", "🎳", "🎮"],
+            "💼 Professionnel": ["💼", "📁", "📂", "📅", "📊", "📈", "📉", "📌", "📍", "📎", "🖇️", "📏", "📐", "✂️", "🗃️", "🗄️", "🗑️", "🔒", "🔓", "🔖", "📝"],
+            "🚀 Motivation": ["🚀", "💡", "✨", "🔥", "💯", "🎯", "🧠", "⚡", "🏆", "🥇", "🎖️", "🏅", "📚", "🔭", "🧪", "🔬", "🛠️", "⚙️", "🔧", "🔨", "⛏️"],
+            "🎉 Célébration": ["🎉", "🎊", "🎈", "🎂", "🍾", "🥂", "🍻", "🍷", "🍸", "🍹", "🍺", "🥃", "🥤", "🧋", "🍿", "🧁", "🍰", "🎁", "🪅", "🪩", "🎆"]
+        };
+
+        let activeCategory = Object.keys(emojiData)[0];
+        let attachments = [];
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTabs();
+            document.getElementById('emojiSearch').addEventListener('input', handleSearch);
+            document.getElementById('messageContent').addEventListener('input', updateCharacterCount);
+            updateCharacterCount();
+        });
+
+        // Gestion des emojis
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            picker.style.display = picker.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function insertEmoji(emoji) {
+            const textarea = document.getElementById('messageContent');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            textarea.value = textarea.value.substring(0, start) + emoji + textarea.value.substring(end);
+            textarea.focus();
+            textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+            updateCharacterCount();
+            toggleEmojiPicker();
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('emojiTabs');
+            tabsContainer.innerHTML = '';
+            
+            Object.keys(emojiData).forEach(category => {
+                const btn = document.createElement('button');
+                btn.innerText = category;
+                btn.onclick = () => {
+                    document.querySelectorAll('.emoji-tabs button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activeCategory = category;
+                    renderEmojis(category);
+                };
+                tabsContainer.appendChild(btn);
+            });
+            
+            tabsContainer.firstChild.classList.add('active');
+            renderEmojis(activeCategory);
+        }
+
+        function renderEmojis(category, filter = "") {
+            const listContainer = document.getElementById('emojiList');
+            listContainer.innerHTML = '';
+            
+            const emojis = filter 
+                ? emojiData[category].filter(emoji => emoji.includes(filter))
+                : emojiData[category];
+            
+            emojis.forEach(emoji => {
+                const span = document.createElement('span');
+                span.innerText = emoji;
+                span.onclick = () => insertEmoji(emoji);
+                listContainer.appendChild(span);
+            });
+        }
+
+        function handleSearch() {
+            const searchInput = document.getElementById('emojiSearch').value.trim();
+            renderEmojis(activeCategory, searchInput);
+        }
+
+        // Formatage de texte
+        function formatText(type) {
+            const textarea = document.getElementById('messageContent');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            let wrappedText = '';
+            
+            switch(type) {
+                case 'bold': wrappedText = `**${selectedText}**`; break;
+                case 'italic': wrappedText = `_${selectedText}_`; break;
+                case 'underline': wrappedText = `<u>${selectedText}</u>`; break;
+            }
+            
+            textarea.value = textarea.value.substring(0, start) + wrappedText + textarea.value.substring(end);
+            textarea.focus();
+            textarea.selectionStart = start;
+            textarea.selectionEnd = start + wrappedText.length;
+        }
+
+        // Gestion des pièces jointes
+        function handleFileSelect() {
+            const fileInput = document.getElementById('file-upload');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                attachments.push(file);
+                updateAttachmentPreview();
+            }
+        }
+
+        function updateAttachmentPreview() {
+            const previewContainer = document.getElementById('attachmentPreview');
+            previewContainer.innerHTML = '';
+            
+            attachments.forEach((file, index) => {
+                const attachmentItem = document.createElement('div');
+                attachmentItem.className = 'attachment-item';
+                
+                const icon = document.createElement('i');
+                icon.className = getFileIcon(file);
+                
+                const name = document.createElement('span');
+                name.textContent = file.name.length > 15 
+                    ? file.name.substring(0, 12) + '...' 
+                    : file.name;
+                
+                const removeBtn = document.createElement('i');
+                removeBtn.className = 'fas fa-times remove-attachment';
+                removeBtn.onclick = () => removeAttachment(index);
+                
+                attachmentItem.appendChild(icon);
+                attachmentItem.appendChild(name);
+                attachmentItem.appendChild(removeBtn);
+                previewContainer.appendChild(attachmentItem);
+            });
+        }
+
+        function getFileIcon(file) {
+            const type = file.type.split('/')[0];
+            const extension = file.name.split('.').pop().toLowerCase();
+            
+            if (type === 'image') return 'fas fa-image';
+            if (type === 'video') return 'fas fa-video';
+            if (type === 'audio') return 'fas fa-music';
+            
+            switch(extension) {
+                case 'pdf': return 'fas fa-file-pdf';
+                case 'doc':
+                case 'docx': return 'fas fa-file-word';
+                case 'xls':
+                case 'xlsx': return 'fas fa-file-excel';
+                case 'ppt':
+                case 'pptx': return 'fas fa-file-powerpoint';
+                case 'zip':
+                case 'rar': return 'fas fa-file-archive';
+                default: return 'fas fa-file';
+            }
+        }
+
+        function removeAttachment(index) {
+            attachments.splice(index, 1);
+            updateAttachmentPreview();
+        }
+
+        // Compteur de caractères
+        function updateCharacterCount() {
+            const textarea = document.getElementById('messageContent');
+            const charCount = document.getElementById('charCount');
+            const count = textarea.value.length;
+            charCount.textContent = count;
+            
+            if (count > 1800) {
+                charCount.style.color = '#e74c3c';
+            } else if (count > 1500) {
+                charCount.style.color = '#f39c12';
+            } else {
+                charCount.style.color = '#7f8c8d';
+            }
+        }
+
+        // Fermer le popup emoji quand on clique ailleurs
+        document.addEventListener('click', function(event) {
+            const picker = document.getElementById('emojiPicker');
+            const button = document.querySelector('.tool-button:nth-child(1)');
+            
+            if (!picker.contains(event.target) && !button.contains(event.target)) {
+                picker.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

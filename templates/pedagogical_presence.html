@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Suivi des Présences - Responsable Pédagogique</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+        }
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background-color: #2c2c6c;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+            transition: width 0.3s;
+        }
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+        .sidebar .logo {
+            padding: 20px;
+            text-align: center;
+        }
+        .sidebar .logo img {
+            width: 100px;
+        }
+        .sidebar .menu {
+            flex: 1;
+        }
+        .sidebar .menu a {
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .menu a:hover {
+            background-color: #4a4a99;
+        }
+        .sidebar .menu a .icon {
+            margin-right: 10px;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            flex: 1;
+            transition: margin-left 0.3s;
+        }
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #8052e6;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .menu-toggle:hover {
+            background: #6a40d0;
+        }
+        .presence-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .presence-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .presence-header h2 {
+            color: #8052e6;
+            margin-top: 0;
+        }
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .search-container input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .search-container button {
+            padding: 12px 20px;
+            background-color: #8052e6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .search-container button:hover {
+            background-color: #6a40d0;
+        }
+        .export-button {
+            padding: 12px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .export-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        .export-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .button-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        .presence-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .presence-table th, .presence-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .presence-table th {
+            background-color: #8052e6;
+            color: white;
+            font-weight: 500;
+        }
+        .presence-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status-connected {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-disconnected {
+            color: #6c757d;
+        }
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <button id="menu-toggle" class="menu-toggle">☰</button>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="/static/PROFIL.png" alt="Web4.Jobs Logo">
+        </div>
+        <div class="menu">
+            <a href="/dashboard"><span class="icon">🏠</span> Accueil</a>
+            <a href="/pedagogical-tutorials"><span class="icon">🎬</span> Tutoriels Vidéos</a>
+            <a href="/chatbot"><span class="icon">🤖</span> Chatbot</a>
+            <a href="/messagerie">
+    <span class="icon">💬</span> Messagerie
+    <span id="notification-badge" style="display: none;" class="unread-count">3</span>
+</a>
+
+<style>
+    .unread-count {
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        margin-left: 6px;
+        display: inline-block;
+        min-width: 18px;
+        text-align: center;
+    }
+</style>
+
+            <a href="/pedagogical-presence"><span class="icon">✅</span> Présence</a>
+            <a href="/rapports"><span class="icon">📈</span> Rapports</a>
+            <a href="/logout"><span class="icon">🔓</span> Déconnexion</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="presence-container">
+            <div class="presence-header">
+                <h2>Suivi des Présences</h2>
+                <button class="export-button" id="export-button">
+                    <span class="button-icon">📊</span> Exporter en Excel
+                </button>
+            </div>
+
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Rechercher un apprenant...">
+                <button id="search-button">Rechercher</button>
+            </div>
+
+            <table class="presence-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Date</th>
+                        <th>Connexion</th>
+                        <th>Déconnexion</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="presence-data">
+                    {% for presence in presences %}
+                    <tr>
+                        <td>{{ presence.Nom }}</td>
+                        <td>{{ presence.Prenom }}</td>
+                        <td>{{ presence.AdresseEmail }}</td>
+                        <td>{{ presence.date_connexion }}</td>
+                        <td>{{ presence.heure_connexion.strftime('%H:%M') if presence.heure_connexion else '-' }}</td>
+                        <td>{{ presence.heure_deconnexion.strftime('%H:%M') if presence.heure_deconnexion else '-' }}</td>
+                        <td>
+                            {% if presence.heure_deconnexion %}
+                                <span class="status-disconnected">Déconnecté</span>
+                            {% else %}
+                                <span class="status-connected">Connecté</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="no-data">Aucune donnée de présence disponible</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            let isCollapsed = false;
+
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                isCollapsed = !isCollapsed;
+            });
+
+            // Barre de recherche fonctionnelle
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
+            const tableRows = document.querySelectorAll('#presence-data tr');
+
+            function filterPresences() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                tableRows.forEach(row => {
+                    const nom = row.querySelector('td:nth-child(1)')?.textContent.toLowerCase() || '';
+                    const prenom = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+                    row.style.display = (nom.startsWith(searchTerm) || prenom.startsWith(searchTerm)) ? '' : 'none';
+                });
+            }
+
+            searchInput.addEventListener('input', filterPresences);
+            searchButton.addEventListener('click', filterPresences);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchButton.click();
+                }
+            });
+
+            // Export Excel
+            document.getElementById('export-button').addEventListener('click', () => {
+                window.location.href = '/export-presence-excel';
+            });
+
+            // Notification check
+            function checkMessages() {
+                fetch('/check-messages')
+                    .then(response => response.json())
+                    .then(data => {
+                        const badge = document.getElementById('notification-badge');
+                        if (data.count > 0) {
+                            badge.textContent = data.count;
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    })
+                    .catch(error => console.error("Erreur lors de la vérification des messages:", error));
+            }
+
+            setInterval(checkMessages, 30000);
+            checkMessages();
+
+            // Animation d'apparition/disparition du bouton menu selon le scroll
+            let lastScrollTop = 0;
+            window.addEventListener('scroll', function () {
+                let scrollTop = window.scrollY || document.documentElement.scrollTop;
+                if (scrollTop > lastScrollTop) {
+                    // Scroll vers le bas → cacher
+                    menuToggle.style.opacity = '0';
+                    menuToggle.style.transform = 'translateY(-20px)';
+                    menuToggle.style.pointerEvents = 'none';
+                } else {
+                    // Scroll vers le haut → montrer
+                    menuToggle.style.opacity = '1';
+                    menuToggle.style.transform = 'translateY(0)';
+                    menuToggle.style.pointerEvents = 'auto';
+                }
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Pour éviter les valeurs négatives
+            });
+        });
+    </script>
+</body>
+</html>

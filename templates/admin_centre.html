@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestion des Responsables de Centre de Coding - Administrateur</title>
+    <style>
+        .data-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        .data-grid {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .data-grid th {
+            background: #8052e6;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .data-grid td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .data-grid input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .action-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-save {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-download {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-add {
+            background: #ffc107;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .toggle-password {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        input[type="date"] {
+            appearance: none;
+            -webkit-appearance: none;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') center/100% no-repeat;
+            color: #8052e6;
+        }
+
+        input::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        /* ✅ Barre de recherche centrée avec champ restreint */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .search-container input {
+            width: 300px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-container button {
+            padding: 12px 20px;
+            background-color: #8052e6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .search-container button:hover {
+            background-color: #6a40d0;
+        }
+    </style>
+    <script>
+        function togglePassword(button) {
+            const input = button.parentElement.querySelector('input');
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="data-container">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Rechercher un responsable...">
+            <button id="search-button">Rechercher</button>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn btn-download" id="download-btn">📥 Télécharger Excel</button>
+            <button class="btn btn-save" id="save-btn">💾 Sauvegarder</button>
+            <button class="btn btn-add" id="add-btn">➕ Ajouter</button>
+        </div>
+
+        <table class="data-grid" id="responsablesTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Mot de passe</th>
+                    <th>Téléphone</th>
+                    <th>Ville</th>
+                    <th>Centre</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for responsable in responsables %}
+                <tr data-id="{{ responsable.id }}">
+                    <td>{{ loop.index }}</td>
+                    <td><input data-field="Nom" value="{{ responsable.Nom or '' }}"></td>
+                    <td><input data-field="Prenom" value="{{ responsable.Prenom or '' }}"></td>
+                    <td><input type="email" data-field="AdresseEmail" value="{{ responsable.AdresseEmail or '' }}"></td>
+                    <td>
+                        <div class="password-container">
+                            <input type="password" data-field="MotDePasse" value="{{ responsable.MotDePasse or '' }}">
+                            <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
+                        </div>
+                    </td>
+                    <td><input type="tel" data-field="Phone" value="{{ responsable.Phone or '' }}"></td>
+                    <td><input data-field="Ville" value="{{ responsable.Ville or '' }}"></td>
+                    <td><input data-field="Centre" value="{{ responsable.Centre or '' }}"></td>
+                    <td>
+                        <button class="btn btn-delete" onclick="deleteResponsable(this)">Supprimer</button>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                <tr class="new-row" data-id="new">
+                    <td id="new-id-cell">Nouveau</td>
+                    <td><input data-field="Nom" placeholder="Nom"></td>
+                    <td><input data-field="Prenom" placeholder="Prénom"></td>
+                    <td><input type="email" data-field="AdresseEmail" placeholder="Email"></td>
+                    <td>
+                        <div class="password-container">
+                            <input type="password" data-field="MotDePasse" placeholder="Mot de passe">
+                            <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
+                        </div>
+                    </td>
+                    <td><input type="tel" data-field="Phone" placeholder="Téléphone"></td>
+                    <td><input data-field="Ville" placeholder="Ville"></td>
+                    <td><input data-field="Centre" placeholder="Centre"></td>
+                    <td>
+                        <button class="btn btn-delete" onclick="deleteRow(this)">Supprimer</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("search-input");
+            const tableRows = document.querySelectorAll("#responsablesTable tbody tr");
+
+            searchInput.addEventListener("input", function () {
+                const query = searchInput.value.toLowerCase().trim();
+
+                tableRows.forEach(row => {
+                    const cells = row.querySelectorAll("td input");
+                    let match = false;
+
+                    cells.forEach(cell => {
+                        if (cell.value.toLowerCase().includes(query)) {
+                            match = true;
+                        }
+                    });
+
+                    row.style.display = match ? "" : "none";
+                });
+            });
+        });
+    </script>
+    <script>
+        document.getElementById("download-btn").addEventListener("click", function () {
+            window.location.href = "/download-responsables-excel";
+        });
+    </script>
+    <script>
+        document.getElementById("add-btn").addEventListener("click", function () {
+            const newRow = document.querySelector("tr.new-row");
+
+            const nom = newRow.querySelector('[data-field="Nom"]').value.trim();
+            console.log(nom)
+            const prenom = newRow.querySelector('[data-field="Prenom"]').value.trim();
+            const email = newRow.querySelector('[data-field="AdresseEmail"]').value.trim();
+            const motdepasse = newRow.querySelector('[data-field="MotDePasse"]').value.trim();
+
+
+            const phone = newRow.querySelector('[data-field="Phone"]').value.trim();
+            console.log(phone)
+            const ville = newRow.querySelector('[data-field="Ville"]').value.trim();
+            const centre = newRow.querySelector('[data-field="Centre"]').value.trim();
+
+            if (!nom || !prenom || !email || !motdepasse) {
+                alert("Veuillez remplir tous les champs obligatoires.");
+                return;
+            }
+
+            fetch("/admin/add-responsable", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    Nom: nom,
+                    Prenom: prenom,
+                    Email: email,
+                    MotDePasse: motdepasse,
+                    Phone: phone,
+                    Ville: ville,
+                    Centre: centre
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert("Responsable ajouté avec succès !");
+                    window.location.reload();
+                } else {
+                    alert("Erreur lors de l'ajout : " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Erreur :", error);
+                alert("Erreur inattendue !");
+            });
+        });
+    </script>
+    <script>
+        document.getElementById("save-btn").addEventListener("click", () => {
+            const rows = document.querySelectorAll("#responsablesTable tbody tr");
+            const modifications = [];
+
+            rows.forEach(row => {
+                const id = row.dataset.id;
+                if (id === "new") return;
+
+                const inputs = row.querySelectorAll("input");
+                const data = {};
+
+                inputs.forEach(input => {
+                    const field = input.getAttribute("data-field");
+                    if (field) {
+                        data[field] = input.value.trim();
+                    }
+                });
+
+                modifications.push({
+                    id: parseInt(id),
+                    action: "update",
+                    fields: data
+                });
+            });
+
+            fetch("/save-centres", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(modifications)
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === "success") {
+                    alert("Modifications enregistrées !");
+                    location.reload();
+                } else {
+                    alert("Erreur : " + (response.message || "inconnue"));
+                }
+            })
+            .catch(error => {
+                console.error("Erreur AJAX :", error);
+                alert("Une erreur est survenue.");
+            });
+        });
+    </script>
+    <script>
+        document.getElementById("add-btn").addEventListener("click", () => {
+            const newRow = document.querySelector(".new-row");
+            if (newRow) {
+                const existingRows = document.querySelectorAll("tbody tr:not(.new-row)");
+                const nextId = existingRows.length + 1;
+
+                const idCell = document.getElementById("new-id-cell");
+                if (idCell) idCell.textContent = nextId;
+
+                newRow.scrollIntoView({ behavior: "smooth", block: "center" });
+                const firstInput = newRow.querySelector("input");
+                if (firstInput) firstInput.focus();
+            }
+        });
+
+        document.getElementById("save-btn").addEventListener("click", () => {
+            const newRow = document.querySelector(".new-row");
+            if (!newRow) return;
+
+            const inputs = newRow.querySelectorAll("input");
+            const data = {};
+
+            inputs.forEach(input => {
+                const field = input.getAttribute("data-field");
+                if (field) data[field] = input.value.trim();
+            });
+
+            if (!data['Nom'] || !data['Prenom'] || !data['AdresseEmail']) {
+                alert("Nom, Prénom et Email sont requis.");
+                return;
+            }
+
+            fetch('/save-centres', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify([{ action: 'create', data }])
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    alert("Responsable ajouté avec succès.");
+
+                    const tbody = newRow.parentElement;
+                    const newIndex = document.querySelectorAll("tbody tr:not(.new-row)").length + 1;
+
+                    const cloned = newRow.cloneNode(true);
+                    cloned.classList.remove("new-row");
+                    cloned.setAttribute("data-id", newIndex);
+                    cloned.querySelector("#new-id-cell").outerHTML = `<td>${newIndex}</td>`;
+
+                    tbody.insertBefore(cloned, newRow);
+
+                    newRow.querySelectorAll("input").forEach(i => i.value = '');
+                    document.getElementById("new-id-cell").textContent = newIndex + 1;
+
+                } else {
+                    alert("Erreur : " + response.message);
+                }
+            })
+            .catch(err => {
+                console.error("Erreur AJAX:", err);
+                alert("Une erreur est survenue.");
+            });
+        });
+    </script>
+    <script>
+        function deleteResponsable(button) {
+            const row = button.closest("tr");
+            const responsableId = row.getAttribute("data-id");
+
+            if (responsableId === "new") {
+                row.querySelectorAll("input").forEach(i => i.value = '');
+                return;
+            }
+
+            if (!confirm("Voulez-vous vraiment supprimer ce responsable ?")) return;
+
+            fetch(`/admin/delete-responsable/${responsableId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        row.remove();
+                        alert("Responsable supprimé avec succès.");
+                    } else {
+                        alert("Erreur lors de la suppression : " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Erreur suppression :", err);
+                    alert("Échec de la suppression.");
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestion des Apprenants - Administrateur</title>
+    <style>
+        .data-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+        .data-grid {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: white;
+        }
+        .data-grid th {
+            background: #8052e6;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .data-grid td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            min-width: 120px;
+            position: relative;
+        }
+        .data-grid input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .action-bar {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-save { background: #28a745; color: white; }
+        .btn-download { background: #007bff; color: white; }
+        .btn-add { background: #ffc107; color: white; }
+        .btn-delete { background: #dc3545; color: white; }
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .toggle-password {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        input[type="date"] {
+            appearance: none;
+            -webkit-appearance: none;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        input::placeholder {
+            color: #999;
+            font-style: italic;
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .search-container input {
+            width: 300px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .search-container button {
+            padding: 12px 20px;
+            background-color: #8052e6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="data-container">
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="Rechercher un apprenant...">
+        <button id="search-button">Rechercher</button>
+    </div>
+    <div class="action-bar">
+        <button class="btn btn-download" id="download-btn">📥 Télécharger Excel</button>
+        <button class="btn btn-save" id="save-btn">💾 Sauvegarder</button>
+        <button class="btn btn-add" id="add-btn">➕ Ajouter</button>
+    </div>
+    <table class="data-grid" id="apprenantsTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Email</th>
+            <th>Mot de passe</th>
+            <th>Téléphone</th>
+            <th>Ville</th>
+            <th>Formation</th>
+            <th>Code Coupon</th>
+            <th>Date Début</th>
+            <th>Date Fin</th>
+            <th>Centre</th>
+            <th>Niveau</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for apprenant in apprenants %}
+            <tr data-id="{{ apprenant.id }}">
+                <td>{{ loop.index }}</td>
+                <td><input data-field="Nom" value="{{ apprenant.Nom or '' }}"></td>
+                <td><input data-field="Prenom" value="{{ apprenant.Prenom or '' }}"></td>
+                <td><input type="email" data-field="AdresseEmail" value="{{ apprenant.AdresseEmail or '' }}"></td>
+                <td>
+                    <div class="password-container">
+                        <input type="password" data-field="MotDePasse" value="{{ apprenant.MotDePasse or '' }}">
+                        <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
+                    </div>
+                </td>
+                <td><input type="tel" data-field="Phone" value="{{ apprenant.Phone or '' }}"></td>
+                <td><input data-field="Ville" value="{{ apprenant.Ville or '' }}"></td>
+                <td><input data-field="TypeDeFormation" value="{{ apprenant.TypeDeFormation or '' }}"></td>
+                <td><input data-field="CodeCoupon" value="{{ apprenant.CodeCoupon or '' }}"></td>
+                <td><input type="date" data-field="DateDebutFormation" value="{{ apprenant.DateDebutFormation | default('', true) }}"></td>
+                <td><input type="date" data-field="DateFinFormation" value="{{ apprenant.DateFinFormation | default('', true) }}"></td>
+                <td><input data-field="Centre" value="{{ apprenant.Centre or '' }}"></td>
+                <td><input data-field="NiveauDeConnaissance" value="{{ apprenant.NiveauDeConnaissance or '' }}"></td>
+                <td><button class="btn btn-delete" onclick="deleteRow(this)">Supprimer</button></td>
+            </tr>
+        {% endfor %}
+        <tr data-id="new">
+            <td>Nouveau</td>
+            <td><input data-field="Nom" placeholder="Nom"></td>
+            <td><input data-field="Prenom" placeholder="Prénom"></td>
+            <td><input type="email" data-field="AdresseEmail" placeholder="Email"></td>
+            <td>
+                <div class="password-container">
+                    <input type="password" data-field="MotDePasse" placeholder="Mot de passe">
+                    <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
+                </div>
+            </td>
+            <td><input type="tel" data-field="Phone" placeholder="Téléphone"></td>
+            <td><input data-field="Ville" placeholder="Ville"></td>
+            <td><input data-field="TypeDeFormation" placeholder="Type de formation"></td>
+            <td><input data-field="CodeCoupon" placeholder="Code coupon"></td>
+            <td><input type="date" data-field="DateDebutFormation"></td>
+            <td><input type="date" data-field="DateFinFormation"></td>
+            <td><input data-field="Centre" placeholder="Centre"></td>
+            <td><input data-field="NiveauDeConnaissance" placeholder="Niveau"></td>
+            <td><button class="btn btn-delete" onclick="deleteRow(this)">Supprimer</button></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    function togglePassword(button) {
+        const input = button.previousElementSibling;
+        input.type = input.type === 'password' ? 'text' : 'password';
+        button.textContent = input.type === 'text' ? '🙈' : '👁️';
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("search-input");
+        const tableRows = document.querySelectorAll("#apprenantsTable tbody tr");
+
+        searchInput.addEventListener("input", function () {
+            const query = searchInput.value.toLowerCase().trim();
+            tableRows.forEach(row => {
+                const cells = row.querySelectorAll("td input");
+                let match = false;
+                cells.forEach(cell => {
+                    if (cell.value.toLowerCase().includes(query)) match = true;
+                });
+                row.style.display = match ? "" : "none";
+            });
+        });
+
+        document.getElementById("download-btn").addEventListener("click", () => {
+            window.location.href = "/download-apprenants-excel";
+        });
+
+        document.getElementById("add-btn").addEventListener("click", () => {
+            const lastRow = document.querySelector("#apprenantsTable tbody tr:last-child");
+            lastRow.scrollIntoView({ behavior: "smooth" });
+            lastRow.querySelector("input")?.focus();
+        });
+
+        document.getElementById("save-btn").addEventListener("click", async () => {
+            const rows = document.querySelectorAll("#apprenantsTable tbody tr");
+            const data = [];
+            rows.forEach(row => {
+                const id = row.getAttribute("data-id");
+                const inputs = row.querySelectorAll("input");
+                const rowData = {};
+                inputs.forEach(input => {
+                    const field = input.getAttribute("data-field");
+                    rowData[field] = input.value.trim();
+                });
+                const hasData = Object.values(rowData).some(val => val !== "");
+                if (!hasData) return;
+                if (id === "new") data.push({ action: "create", fields: rowData });
+                else data.push({ action: "update", id: parseInt(id), fields: rowData });
+            });
+            try {
+                const response = await fetch("/admin/save-apprenants", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.status === "success") location.reload();
+                else alert("Erreur : " + result.message);
+            } catch (err) {
+                alert("Erreur serveur : " + err.message);
+            }
+        });
+    });
+
+    function deleteRow(button) {
+        const row = button.closest("tr");
+        const id = row.getAttribute("data-id");
+        if (id === "new") {
+            row.remove();
+            return;
+        }
+        if (!confirm("Confirmer la suppression ?")) return;
+        fetch(`/admin/delete-apprenant/${id}`, { method: "DELETE" })
+            .then(res => res.json())
+            .then(result => {
+                if (result.status === "success") row.remove();
+                else alert("Erreur : " + result.message);
+            })
+            .catch(err => alert("Erreur serveur : " + err.message));
+    }
+</script>
+</body>
+</html>
+
+
+
+

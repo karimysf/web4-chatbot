@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tutoriels Vidéos- Administrateur</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+        }
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background-color: #2c2c6c;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+            transition: width 0.3s;
+        }
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+        .sidebar .logo {
+            padding: 20px;
+            text-align: center;
+        }
+        .sidebar .logo img {
+            width: 100px;
+        }
+        .sidebar .menu {
+            flex: 1;
+        }
+        .sidebar .menu a {
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .menu a:hover {
+            background-color: #4a4a99;
+        }
+        .sidebar .menu a .icon {
+            margin-right: 10px;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            flex: 1;
+            transition: margin-left 0.3s;
+        }
+        .main-content.expanded {
+            margin-left: 0;
+        }
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #8052e6;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .menu-toggle:hover {
+            background: #6a40d0;
+        }
+        .knowledge-base-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .knowledge-base-header {
+            margin-bottom: 25px;
+        }
+        .knowledge-base-header h2 {
+            color: #8052e6;
+            margin-top: 0;
+        }
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .search-container input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .search-container button {
+            padding: 12px 20px;
+            background-color: #8052e6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .search-container button:hover {
+            background-color: #6a40d0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .action-button {
+            padding: 12px 20px;
+            background-color: #8052e6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .action-button:hover {
+            background-color: #6a40d0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        .action-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .delete-button {
+            padding: 12px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .delete-button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        .delete-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .button-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        .visualize-button {
+            padding: 12px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .visualize-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        .visualize-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <button id="menu-toggle" class="menu-toggle">☰</button>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="/static/PROFIL.png" alt="Web4.Jobs Logo">
+        </div>
+         <div class="menu">
+            <a href="/dashboard"><span class="icon">🏠</span> Accueil</a>
+            
+            
+            <a href="/centre-courses"><span class="icon">📊</span> Listes des parcours de formation</a>
+            <a href="/Responsable_de_centre_de_coding-knowledge-base"><span class="icon">📚</span> Base de connaissances</a>
+            <a href="/chatbot"><span class="icon">🤖</span> Chatbot</a>
+            <a href="/messagerie">
+    <a href="/messagerie">
+    <span class="icon">💬</span> Messagerie
+    <span id="notification-badge" style="display: none;" class="unread-count">3</span>
+</a>
+
+<style>
+    .unread-count {
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        margin-left: 6px;
+        display: inline-block;
+        min-width: 18px;
+        text-align: center;
+    }
+</style>
+
+            <a href="/centre-apprenants"><span class="icon">👥</span> Apprenants</a>
+
+            <a href="/rapports"><span class="icon">📈</span> Rapports</a>
+
+            <a href="/logout"><span class="icon">🔓</span> Déconnexion</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="knowledge-base-container">
+            <div class="knowledge-base-header">
+                <h2>Tutoriels Vidéos</h2>
+            </div>
+
+            <div class="search-container">
+                <input type="text" placeholder="Rechercher dans les tutoriels Vidéos...">
+                <button>Rechercher</button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-button"><span class="button-icon">+</span> Ajouter</button>
+                <button class="delete-button"><span class="button-icon"></span> Supprimer</button>
+                <button class="visualize-button"><span class="button-icon"></span> Visualiser</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            });
+
+            // Fonctionnalité de recherche
+            const searchButton = document.querySelector('.search-container button');
+            const searchInput = document.querySelector('.search-container input');
+
+            searchButton.addEventListener('click', function() {
+                const query = searchInput.value;
+                if (query) {
+                    // Implémentez ici la logique de recherche
+                    console.log('Recherche:', query);
+                }
+            });
+
+            // Permettre la recherche avec la touche Entrée
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchButton.click();
+                }
+            });
+        });
+        
+        <script>
+    // Notification auto-refresh
+    function checkMessages() {
+        fetch('/check-messages')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Nombre de messages non lus:", data.count);  // Log pour vérifier le nombre de messages non lus
+                const badge = document.getElementById('notification-badge');
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error("Erreur lors de la vérification des messages:", error);  // Log pour vérifier les erreurs
+            });
+    }
+    setInterval(checkMessages, 30000);
+    checkMessages(); // Initial check
+</script>
+
+    </script>
+</body>
+</html>

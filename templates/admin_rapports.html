@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tableau de bord administratif</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .card p {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .card canvas {
+      width: 100%;
+      height: 450px; /* ✅ AGRANDI pour tableau de bord */
+    }
+
+    .download-button button {
+      background-color: #007bff;
+      color: white;
+      padding: 14px 28px;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background-color 0.3s;
+    }
+
+    .download-button button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <header>📊 Tableau de bord – Statistiques administratives</header>
+
+  <div id="dashboard-section">
+    <div class="dashboard">
+      <div class="card">
+        <h2>Nombre total d'apprenants</h2>
+        <p id="total-apprenants">...</p>
+      </div>
+      <div class="card">
+        <h2>Nombre total de responsables pédagogiques</h2>
+        <p id="total-responsables-pedagogiques">...</p>
+      </div>
+      <div class="card">
+        <h2>Nombre total de centres</h2>
+        <p id="total-centres">...</p>
+      </div>
+      <div class="card">
+        <h2>Nombre total de responsables de coding</h2>
+        <p id="total-responsables-coding">...</p>
+      </div>
+      <div class="card">
+        <h2>Graphique : Répartition globale</h2>
+        <canvas id="barChart"></canvas>
+      </div>
+      <div class="card">
+        <h2>Graphique circulaire (Camembert)</h2>
+        <canvas id="doughnutChart"></canvas>
+      </div>
+      <div class="card download-button">
+        <h2>Télécharger le rapport (.PDF)</h2>
+        <button onclick="exportPDF()">📄 Télécharger le PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let barChartInstance = null;
+    let doughnutChartInstance = null;
+
+    function exportPDF() {
+      const element = document.getElementById("dashboard-section");
+      const opt = {
+        margin:       0.5,
+        filename:     'Rapport_Administratif.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().from(element).set(opt).save();
+    }
+
+    function loadAdminData() {
+      fetch('/get-admin-data')
+        .then(res => res.json())
+        .then(data => {
+          const { total_apprenants, total_responsables_pedagogiques, total_centres, total_responsables_coding } = data;
+
+          document.getElementById('total-apprenants').textContent = total_apprenants;
+          document.getElementById('total-responsables-pedagogiques').textContent = total_responsables_pedagogiques;
+          document.getElementById('total-centres').textContent = total_centres;
+          document.getElementById('total-responsables-coding').textContent = total_responsables_coding;
+
+          const barCtx = document.getElementById('barChart').getContext('2d');
+          const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+
+          if (barChartInstance) barChartInstance.destroy();
+          if (doughnutChartInstance) doughnutChartInstance.destroy();
+
+          barChartInstance = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+              labels: ['Apprenants', 'Responsables Pédagogiques', 'Centres', 'Responsables Coding'],
+              datasets: [{
+                label: 'Nombre total',
+                data: [total_apprenants, total_responsables_pedagogiques, total_centres, total_responsables_coding],
+                backgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#e67e22']
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Répartition des rôles' }
+              }
+            }
+          });
+
+          doughnutChartInstance = new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Apprenants', 'Responsables Pédagogiques', 'Centres', 'Responsables Coding'],
+              datasets: [{
+                data: [total_apprenants, total_responsables_pedagogiques, total_centres, total_responsables_coding],
+                backgroundColor: ['#3498db', '#2ecc71', '#f1c40f', '#e67e22']
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { position: 'right' },
+                title: { display: true, text: 'Répartition par catégorie' }
+              }
+            }
+          });
+        })
+        .catch(err => console.error("Erreur API:", err));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAdminData();
+      setInterval(loadAdminData, 10000);
+    });
+  </script>
+</body>
+</html>
