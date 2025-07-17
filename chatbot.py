@@ -48,7 +48,7 @@ def get_db_connection():
         database=DB_NAME
     )
     return conn
-print(DB_HOST)
+
 
 # Ajoutez cette fonction après la création de l'application Flask
 def urlize(text, max_length=None):
