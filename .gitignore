@@ -2,3 +2,6 @@
 .vscode/
 uploads/
 db/
+chatbpt.sql
+__pycache__/
+utils/__pycache__/

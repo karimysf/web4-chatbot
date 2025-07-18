@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Base de Connaissances - Responsable de Centre de Coding</title>
+    <title>Listes des parcours de formation- Administrateur</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -71,15 +71,9 @@
             border-radius: 4px;
             cursor: pointer;
             z-index: 1000;
-            opacity: 1;
-            transition: opacity 0.5s ease;
         }
         .menu-toggle:hover {
             background: #6a40d0;
-        }
-        .menu-toggle.hidden {
-            opacity: 0;
-            pointer-events: none;
         }
         .knowledge-base-container {
             background-color: white;
@@ -193,85 +187,6 @@
             transform: translateY(0);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        .form-container {
-            display: none;
-            background-color: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        .form-container.show {
-            display: block;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .form-group textarea {
-            height: 100px;
-        }
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .form-actions button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .form-actions .submit-button {
-            background-color: #28a745;
-            color: white;
-        }
-        .form-actions .cancel-button {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .file-list {
-            margin-top: 20px;
-        }
-        .scrollable-list {
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .file-item a {
-            color: white;
-            text-decoration: none;
-        }
-        .file-item a:hover {
-            text-decoration: underline;
-        }
-        .file-item-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-        }
     </style>
 </head>
 <body>
@@ -280,12 +195,15 @@
         <div class="logo">
             <img src="/static/PROFIL.png" alt="Web4.Jobs Logo">
         </div>
-        <div class="menu">
+         <div class="menu">
             <a href="/dashboard"><span class="icon">🏠</span> Accueil</a>
+           
+            
             <a href="/centre-courses"><span class="icon">📊</span> Listes des parcours de formation</a>
             <a href="/Responsable_de_centre_de_coding-knowledge-base"><span class="icon">📚</span> Base de connaissances</a>
             <a href="/chatbot"><span class="icon">🤖</span> Chatbot</a>
             <a href="/messagerie">
+    <a href="/messagerie">
     <span class="icon">💬</span> Messagerie
     <span id="notification-badge" style="display: none;" class="unread-count">3</span>
 </a>
@@ -305,7 +223,9 @@
 </style>
 
             <a href="/centre-apprenants"><span class="icon">👥</span> Apprenants</a>
+
             <a href="/rapports"><span class="icon">📈</span> Rapports</a>
+
             <a href="/logout"><span class="icon">🔓</span> Déconnexion</a>
         </div>
     </div>
@@ -313,126 +233,77 @@
     <div class="main-content">
         <div class="knowledge-base-container">
             <div class="knowledge-base-header">
-                <h2>Base de connaissances</h2>
+                <h2>Listes des parcours de formation</h2>
             </div>
 
             <div class="search-container">
-                <input type="text" id="search-input" placeholder="Rechercher dans la base de connaissances...">
+                <input type="text" placeholder="Rechercher dans listes des parcours de formation...">
                 <button>Rechercher</button>
             </div>
 
             <div class="action-buttons">
-                <button class="action-button" id="add-button"><span class="button-icon">+</span> Ajouter</button>
-            </div>
-
-            <div class="form-container" id="knowledge-form">
-                <h3>Ajouter un fichier à la base de connaissances</h3>
-                <form id="knowledgeForm" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="titre">Titre</label>
-                        <input type="text" id="titre" name="titre" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea id="description" name="description" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="fichier">Fichier (PDF, Word, JSON)</label>
-                        <input type="file" id="fichier" name="fichier" accept=".pdf,.doc,.docx,.json">
-                    </div>
-                    <div class="form-group">
-                        <label for="lien_web">Lien Web</label>
-                        <input type="url" id="lien_web" name="lien_web" placeholder="https://example.com">
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="submit-button">Ajouter</button>
-                        <button type="button" class="cancel-button" id="cancel-button">Annuler</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="file-list scrollable-list" id="file-list">
-                {% for file in files %}
-                <div class="file-item" id="file-{{ file.id }}">
-                    <span>{{ file.titre }}</span>
-                    <div class="file-item-actions">
-                        {% if file.lien_web %}
-                            <a class="visualize-button" href="{{ file.lien_web }}" target="_blank">Visualiser le lien</a>
-                        {% elif file.type_fichier %}
-                            <a class="visualize-button" href="{{ url_for('upload.view_file', file_id=file.id) }}" target="_blank">Visualiser le fichier</a>
-                        {% endif %}
-                        <button class="delete-button" onclick="deleteKnowledgeFile({{ file.id }})">Supprimer</button>
-                    </div>
-                </div>
-                {% endfor %}
+                <button class="action-button"><span class="button-icon">+</span> Ajouter</button>
+                <button class="delete-button"><span class="button-icon"></span> Supprimer</button>
+                <button class="visualize-button"><span class="button-icon"></span> Visualiser</button>
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const menuToggle = document.getElementById('menu-toggle');
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
-            menuToggle.addEventListener('click', function () {
+
+            menuToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('collapsed');
                 mainContent.classList.toggle('expanded');
             });
 
-            const searchInput = document.getElementById('search-input');
-            const fileItems = document.querySelectorAll('.file-item');
-            searchInput.addEventListener('keyup', function () {
-                const query = searchInput.value.toLowerCase();
-                fileItems.forEach(function (item) {
-                    const title = item.querySelector('span').textContent.toLowerCase();
-                    item.style.display = title.includes(query) ? 'flex' : 'none';
-                });
+            // Fonctionnalité de recherche
+            const searchButton = document.querySelector('.search-container button');
+            const searchInput = document.querySelector('.search-container input');
+
+            searchButton.addEventListener('click', function() {
+                const query = searchInput.value;
+                if (query) {
+                    // Implémentez ici la logique de recherche
+                    console.log('Recherche:', query);
+                }
             });
 
-            const addButton = document.getElementById('add-button');
-            const cancelButton = document.getElementById('cancel-button');
-            const formContainer = document.getElementById('knowledge-form');
-            addButton.addEventListener('click', function () {
-                formContainer.classList.add('show');
-            });
-            cancelButton.addEventListener('click', function () {
-                formContainer.classList.remove('show');
+            // Permettre la recherche avec la touche Entrée
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchButton.click();
+                }
             });
         });
-
-        let lastScrollTop = 0;
-        const toggleButton = document.getElementById('menu-toggle');
-        window.addEventListener('scroll', function () {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (scrollTop > lastScrollTop) {
-                // Scrolling down
-                toggleButton.classList.add('hidden');
-            } else {
-                // Scrolling up
-                toggleButton.classList.remove('hidden');
-            }
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        }, false);
-
-        function deleteKnowledgeFile(fileId) {
-            if (!confirm("Êtes-vous sûr de vouloir supprimer ce fichier de la base de connaissances ?")) return;
-            fetch(`/api/delete-knowledge/${fileId}`, {
-                method: 'DELETE'
-            })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById(`file-${fileId}`).remove();
-                    alert("Fichier supprimé avec succès.");
+      
+    // Notification auto-refresh
+    function checkMessages() {
+        fetch('/check-messages')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Nombre de messages non lus:", data.count);  // Log pour vérifier le nombre de messages non lus
+                const badge = document.getElementById('notification-badge');
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'inline-block';
                 } else {
-                    response.json().then(data => {
-                        alert("Erreur : " + (data.error || "Échec de la suppression."));
-                    });
+                    badge.style.display = 'none';
                 }
             })
             .catch(error => {
-                alert("Erreur réseau : " + error);
-            });
-        }
+                console.error("Erreur lors de la vérification des messages:", error);  // Log pour vérifier les erreurs
+            })
+    }
+    setInterval(checkMessages, 30000);
+    checkMessages(); // Initial check
+</script>
+
     </script>
 </body>
 </html>
+
+
