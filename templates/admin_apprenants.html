@@ -1,140 +1,359 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Apprenants - Administrateur</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
         .data-container {
             padding: 20px;
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             overflow-x: auto;
         }
+
         .data-grid {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             background: white;
+            border-radius: 8px;
+            overflow: hidden;
         }
+
         .data-grid th {
-            background: #8052e6;
+            background: linear-gradient(135deg, #8052e6, #6b46c1);
             color: white;
-            padding: 15px;
+            padding: 16px;
             text-align: left;
             position: sticky;
             top: 0;
-            z-index: 2;
+            z-index: 10;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
         }
+
         .data-grid td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0f0f0;
-            min-width: 120px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            min-width: 140px;
             position: relative;
+            vertical-align: middle;
         }
-        .data-grid input {
+
+        .data-grid tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .data-grid tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+
+        .data-grid input, .data-grid select {
             width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 10px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
             font-size: 14px;
-            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background-color: white;
         }
+
+        .data-grid input:focus, .data-grid select:focus {
+            outline: none;
+            border-color: #8052e6;
+            box-shadow: 0 0 0 3px rgba(128, 82, 230, 0.1);
+        }
+
+        /* Custom select styling */
+        .data-grid select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .data-grid select:hover {
+            border-color: #8052e6;
+        }
+
+        .data-grid select option {
+            padding: 8px 12px;
+            background-color: white;
+            color: #374151;
+        }
+
+        .data-grid select option:hover {
+            background-color: #f3f4f6;
+        }
+
         .action-bar {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             display: flex;
             justify-content: flex-start;
-            gap: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
+
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
         }
-        .btn-save { background: #28a745; color: white; }
-        .btn-download { background: #007bff; color: white; }
-        .btn-add { background: #ffc107; color: white; }
-        .btn-delete { background: #dc3545; color: white; }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-save { 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            color: white; 
+        }
+        
+        .btn-download { 
+            background: linear-gradient(135deg, #3b82f6, #2563eb); 
+            color: white; 
+        }
+        
+        .btn-add { 
+            background: linear-gradient(135deg, #f59e0b, #d97706); 
+            color: white; 
+        }
+        
+        .btn-delete { 
+            background: linear-gradient(135deg, #ef4444, #dc2626); 
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
         .password-container {
             position: relative;
             display: flex;
             align-items: center;
-            gap: 5px;
         }
+
         .toggle-password {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
             background: none;
             border: none;
             cursor: pointer;
-            padding: 5px;
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        input[type="date"] {
-            appearance: none;
-            -webkit-appearance: none;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
+            padding: 4px;
             border-radius: 4px;
-            background-color: white;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+            z-index: 5;
         }
-        input::placeholder {
-            color: #999;
-            font-style: italic;
+
+        .toggle-password:hover {
+            background-color: rgba(0,0,0,0.1);
         }
+
         .search-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
-            gap: 10px;
+            margin-bottom: 24px;
+            gap: 12px;
         }
+
         .search-container input {
-            width: 300px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+            width: 320px;
+            padding: 14px 18px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
         }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: #8052e6;
+            box-shadow: 0 0 0 3px rgba(128, 82, 230, 0.1);
+        }
+
         .search-container button {
-            padding: 12px 20px;
-            background-color: #8052e6;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #8052e6, #6b46c1);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-container button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(128, 82, 230, 0.3);
+        }
+
+        /* Validation States */
+        .input-valid, .select-valid {
+            border-color: #10b981 !important;
+            background-color: #f0fdf4;
+        }
+
+        .input-invalid, .select-invalid {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2;
+        }
+
+        .input-warning, .select-warning {
+            border-color: #f59e0b !important;
+            background-color: #fffbeb;
+        }
+
+        /* Error messages */
+        .error-message {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            font-size: 11px;
+            color: #ef4444;
+            font-weight: 500;
+            z-index: 5;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #8052e6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .data-container {
+                padding: 12px;
+            }
+            
+            .search-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .search-container input {
+                width: 100%;
+                max-width: 320px;
+            }
+            
+            .action-bar {
+                justify-content: center;
+            }
+        }
+
+        /* Success/Error notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
         }
     </style>
 </head>
 <body>
 <div class="data-container">
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Rechercher un apprenant...">
+        <input type="text" id="search-input" placeholder="🔍 Rechercher un apprenant (nom, email, ville...)">
         <button id="search-button">Rechercher</button>
     </div>
+    
     <div class="action-bar">
-        <button class="btn btn-download" id="download-btn">📥 Télécharger Excel</button>
-        <button class="btn btn-save" id="save-btn">💾 Sauvegarder</button>
-        <button class="btn btn-add" id="add-btn">➕ Ajouter</button>
+        <button class="btn btn-download" id="download-btn">
+            <span>📥</span> Télécharger Excel
+        </button>
+        <button class="btn btn-save" id="save-btn">
+            <span>💾</span> Sauvegarder
+        </button>
+        <button class="btn btn-add" id="add-btn">
+            <span>➕</span> Ajouter Apprenant
+        </button>
     </div>
+    
     <table class="data-grid" id="apprenantsTable">
         <thead>
         <tr>
             <th>ID</th>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Email</th>
-            <th>Mot de passe</th>
+            <th>Nom *</th>
+            <th>Prénom *</th>
+            <th>Email *</th>
+            <th>Mot de passe *</th>
             <th>Téléphone</th>
-            <th>Ville</th>
-            <th>Formation</th>
+            <th>Ville *</th>
+            <th>Formation *</th>
             <th>Code Coupon</th>
             <th>Date Début</th>
             <th>Date Fin</th>
-            <th>Centre</th>
+            <th>Centre *</th>
             <th>Niveau</th>
             <th>Actions</th>
         </tr>
@@ -143,64 +362,315 @@
         {% for apprenant in apprenants %}
             <tr data-id="{{ apprenant.id }}">
                 <td>{{ loop.index }}</td>
-                <td><input data-field="Nom" value="{{ apprenant.Nom or '' }}"></td>
-                <td><input data-field="Prenom" value="{{ apprenant.Prenom or '' }}"></td>
-                <td><input type="email" data-field="AdresseEmail" value="{{ apprenant.AdresseEmail or '' }}"></td>
+                <td><div class="input-container"><input data-field="Nom" data-required="true" value="{{ apprenant.Nom or '' }}" placeholder="Nom complet"></div></td>
+                <td><div class="input-container"><input data-field="Prenom" data-required="true" value="{{ apprenant.Prenom or '' }}" placeholder="Prénom"></div></td>
+                <td><div class="input-container"><input type="email" data-field="AdresseEmail" data-required="true" value="{{ apprenant.AdresseEmail or '' }}" placeholder="email@exemple.com"></div></td>
                 <td>
-                    <div class="password-container">
-                        <input type="password" data-field="MotDePasse" value="{{ apprenant.MotDePasse or '' }}">
-                        <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
+                    <div class="input-container">
+                        <div class="password-container">
+                            <input type="password" data-field="MotDePasse" data-required="true" value="{{ apprenant.MotDePasse or '' }}" placeholder="Min. 8 caractères">
+                            <button class="toggle-password" type="button" onclick="togglePassword(this)" title="Afficher/Masquer le mot de passe">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </td>
-                <td><input type="tel" data-field="Phone" value="{{ apprenant.Phone or '' }}"></td>
-                <td><input data-field="Ville" value="{{ apprenant.Ville or '' }}"></td>
-                <td><input data-field="TypeDeFormation" value="{{ apprenant.TypeDeFormation or '' }}"></td>
-                <td><input data-field="CodeCoupon" value="{{ apprenant.CodeCoupon or '' }}"></td>
-                <td><input type="date" data-field="DateDebutFormation" value="{{ apprenant.DateDebutFormation | default('', true) }}"></td>
-                <td><input type="date" data-field="DateFinFormation" value="{{ apprenant.DateFinFormation | default('', true) }}"></td>
-                <td><input data-field="Centre" value="{{ apprenant.Centre or '' }}"></td>
-                <td><input data-field="NiveauDeConnaissance" value="{{ apprenant.NiveauDeConnaissance or '' }}"></td>
-                <td><button class="btn btn-delete" onclick="deleteRow(this)">Supprimer</button></td>
+                <td><div class="input-container"><input type="tel" data-field="Phone" value="{{ apprenant.Phone or '' }}" placeholder="+212 658 654 999"></div></td>
+                <td><div class="input-container"><input data-field="Ville" data-required="true" value="{{ apprenant.Ville or '' }}" placeholder="Ville"></div></td>
+                <td>
+                    <div class="input-container">
+                        <select data-field="TypeDeFormation" data-required="true">
+                            <option value="">Sélectionner une formation</option>
+                            <option value="Développement Web" {% if apprenant.TypeDeFormation == 'Développement Web' %}selected{% endif %}>Développement Web</option>
+                            <option value="Développement Mobile" {% if apprenant.TypeDeFormation == 'Développement Mobile' %}selected{% endif %}>Développement Mobile</option>
+                            <option value="Data Science" {% if apprenant.TypeDeFormation == 'Data Science' %}selected{% endif %}>Data Science</option>
+                            <option value="Intelligence Artificielle" {% if apprenant.TypeDeFormation == 'Intelligence Artificielle' %}selected{% endif %}>Intelligence Artificielle</option>
+                            <option value="Cybersécurité" {% if apprenant.TypeDeFormation == 'Cybersécurité' %}selected{% endif %}>Cybersécurité</option>
+                            <option value="DevOps" {% if apprenant.TypeDeFormation == 'DevOps' %}selected{% endif %}>DevOps</option>
+                            <option value="UX/UI Design" {% if apprenant.TypeDeFormation == 'UX/UI Design' %}selected{% endif %}>UX/UI Design</option>
+                            <option value="Marketing Digital" {% if apprenant.TypeDeFormation == 'Marketing Digital' %}selected{% endif %}>Marketing Digital</option>
+                            <option value="Gestion de Projet" {% if apprenant.TypeDeFormation == 'Gestion de Projet' %}selected{% endif %}>Gestion de Projet</option>
+                            <option value="Cloud Computing" {% if apprenant.TypeDeFormation == 'Cloud Computing' %}selected{% endif %}>Cloud Computing</option>
+                        </select>
+                    </div>
+                </td>
+                <td><div class="input-container"><input data-field="CodeCoupon" value="{{ apprenant.CodeCoupon or '' }}" placeholder="Code promotionnel"></div></td>
+                <td><div class="input-container"><input type="date" data-field="DateDebutFormation" value="{{ apprenant.DateDebutFormation | default('', true) }}"></div></td>
+                <td><div class="input-container"><input type="date" data-field="DateFinFormation" value="{{ apprenant.DateFinFormation | default('', true) }}"></div></td>
+                <td><div class="input-container"><input data-field="Centre" data-required="true" value="{{ apprenant.Centre or '' }}" placeholder="Centre de formation"></div></td>
+                <td>
+                    <div class="input-container">
+                        <select data-field="NiveauDeConnaissance">
+                            <option value="">Sélectionner un niveau</option>
+                            <option value="Débutant" {% if apprenant.NiveauDeConnaissance == 'Débutant' %}selected{% endif %}>Débutant</option>
+                            <option value="Intermédiaire" {% if apprenant.NiveauDeConnaissance == 'Intermédiaire' %}selected{% endif %}>Intermédiaire</option>
+                            <option value="Avancé" {% if apprenant.NiveauDeConnaissance == 'Avancé' %}selected{% endif %}>Avancé</option>
+                            <option value="Expert" {% if apprenant.NiveauDeConnaissance == 'Expert' %}selected{% endif %}>Expert</option>
+                        </select>
+                    </div>
+                </td>
+                <td><button class="btn btn-delete" onclick="deleteRow(this)">🗑️ Supprimer</button></td>
             </tr>
         {% endfor %}
         <tr data-id="new">
-            <td>Nouveau</td>
-            <td><input data-field="Nom" placeholder="Nom"></td>
-            <td><input data-field="Prenom" placeholder="Prénom"></td>
-            <td><input type="email" data-field="AdresseEmail" placeholder="Email"></td>
+            <td><strong>Nouveau</strong></td>
+            <td><div class="input-container"><input data-field="Nom" data-required="true" placeholder="Nom complet"></div></td>
+            <td><div class="input-container"><input data-field="Prenom" data-required="true" placeholder="Prénom"></div></td>
+            <td><div class="input-container"><input type="email" data-field="AdresseEmail" data-required="true" placeholder="email@exemple.com"></div></td>
             <td>
-                <div class="password-container">
-                    <input type="password" data-field="MotDePasse" placeholder="Mot de passe">
-                    <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
+                <div class="input-container">
+                    <div class="password-container">
+                        <input type="password" data-field="MotDePasse" data-required="true" placeholder="Min. 8 caractères">
+                        <button class="toggle-password" type="button" onclick="togglePassword(this)" title="Afficher/Masquer le mot de passe">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </td>
-            <td><input type="tel" data-field="Phone" placeholder="Téléphone"></td>
-            <td><input data-field="Ville" placeholder="Ville"></td>
-            <td><input data-field="TypeDeFormation" placeholder="Type de formation"></td>
-            <td><input data-field="CodeCoupon" placeholder="Code coupon"></td>
-            <td><input type="date" data-field="DateDebutFormation"></td>
-            <td><input type="date" data-field="DateFinFormation"></td>
-            <td><input data-field="Centre" placeholder="Centre"></td>
-            <td><input data-field="NiveauDeConnaissance" placeholder="Niveau"></td>
-            <td><button class="btn btn-delete" onclick="deleteRow(this)">Supprimer</button></td>
+            <td><div class="input-container"><input type="tel" data-field="Phone" placeholder="+212 658 654 999"></div></td>
+            <td><div class="input-container"><input data-field="Ville" data-required="true" placeholder="Ville"></div></td>
+            <td>
+                <div class="input-container">
+                    <select data-field="TypeDeFormation" data-required="true">
+                        <option value="">Sélectionner une formation</option>
+                        <option value="Développement Web">Développement Web</option>
+                        <option value="Développement Mobile">Développement Mobile</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Intelligence Artificielle">Intelligence Artificielle</option>
+                        <option value="Cybersécurité">Cybersécurité</option>
+                        <option value="DevOps">DevOps</option>
+                        <option value="UX/UI Design">UX/UI Design</option>
+                        <option value="Marketing Digital">Marketing Digital</option>
+                        <option value="Gestion de Projet">Gestion de Projet</option>
+                        <option value="Cloud Computing">Cloud Computing</option>
+                    </select>
+                </div>
+            </td>
+            <td><div class="input-container"><input data-field="CodeCoupon" placeholder="Code promotionnel"></div></td>
+            <td><div class="input-container"><input type="date" data-field="DateDebutFormation"></div></td>
+            <td><div class="input-container"><input type="date" data-field="DateFinFormation"></div></td>
+            <td><div class="input-container"><input data-field="Centre" data-required="true" placeholder="Centre de formation"></div></td>
+            <td>
+                <div class="input-container">
+                    <select data-field="NiveauDeConnaissance">
+                        <option value="">Sélectionner un niveau</option>
+                        <option value="Débutant">Débutant</option>
+                        <option value="Intermédiaire">Intermédiaire</option>
+                        <option value="Avancé">Avancé</option>
+                        <option value="Expert">Expert</option>
+                    </select>
+                </div>
+            </td>
+            <td><button class="btn btn-delete" onclick="deleteRow(this)">🗑️ Supprimer</button></td>
         </tr>
         </tbody>
     </table>
 </div>
+
 <script>
-    function togglePassword(button) {
-        const input = button.previousElementSibling;
-        input.type = input.type === 'password' ? 'text' : 'password';
-        button.textContent = input.type === 'text' ? '🙈' : '👁️';
+    // Enhanced validation patterns and rules
+    const validationRules = {
+        'Nom': {
+            pattern: /^[a-zA-ZÀ-ÿ\s\-'\.]{2,50}$/,
+            message: 'Nom invalide (2-50 caractères, lettres uniquement)'
+        },
+        'Prenom': {
+            pattern: /^[a-zA-ZÀ-ÿ\s\-'\.]{2,50}$/,
+            message: 'Prénom invalide (2-50 caractères, lettres uniquement)'
+        },
+        'AdresseEmail': {
+            pattern: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+            message: 'Email invalide'
+        },
+        'MotDePasse': {
+            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+            message: 'Min 8 caractères avec au moins 1 majuscule, 1 minuscule et 1 chiffre'
+        },
+        'Phone': {
+            pattern: /^(\+212|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})$/,
+            message: 'Numéro marocain invalide (+212 ou 0 suivi de 9 chiffres)'
+        },
+        'Ville': {
+            pattern: /^[a-zA-ZÀ-ÿ\s\-'\.]{2,50}$/,
+            message: 'Ville invalide (2-50 caractères, lettres uniquement)'
+        },
+        'TypeDeFormation': {
+            values: ['Développement Web', 'Développement Mobile', 'Data Science', 'Intelligence Artificielle', 'Cybersécurité', 'DevOps', 'UX/UI Design', 'Marketing Digital', 'Gestion de Projet', 'Cloud Computing'],
+            message: 'Veuillez sélectionner un type de formation'
+        },
+        'CodeCoupon': {
+            pattern: /^[A-Z0-9]{3,20}$/,
+            message: 'Code coupon invalide (3-20 caractères, majuscules et chiffres)'
+        },
+        'Centre': {
+            pattern: /^[a-zA-ZÀ-ÿ\s\-'\.0-9]{2,100}$/,
+            message: 'Nom du centre invalide'
+        },
+        'NiveauDeConnaissance': {
+            values: ['Débutant', 'Intermédiaire', 'Avancé', 'Expert'],
+            message: 'Veuillez sélectionner un niveau'
+        }
+    };
+
+    // Show notification function
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => notification.classList.add('show'), 100);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => document.body.removeChild(notification), 300);
+        }, 3000);
     }
 
+    // Enhanced password toggle with SVG icons
+    function togglePassword(button) {
+        const input = button.parentNode.querySelector('input');
+        const isPassword = input.type === 'password';
+        
+        input.type = isPassword ? 'text' : 'password';
+        
+        // Update SVG icon
+        const svg = button.querySelector('svg');
+        if (isPassword) {
+            // Eye with slash (hidden)
+            svg.innerHTML = `
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+            `;
+        } else {
+            // Regular eye (visible)
+            svg.innerHTML = `
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+            `;
+        }
+        
+        button.title = isPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe';
+    }
+
+    // Enhanced validation function
+    function validateInput(input) {
+        const field = input.getAttribute('data-field');
+        const value = input.type === 'select-one' ? input.value : input.value.trim();
+        const isRequired = input.getAttribute('data-required') === 'true';
+        const container = input.closest('.input-container');
+        
+        // Remove existing error messages
+        const existingError = container.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Reset classes
+        input.classList.remove('input-valid', 'input-invalid', 'input-warning', 'select-valid', 'select-invalid', 'select-warning');
+        
+        // Check if empty and required
+        if (value === '' && isRequired) {
+            input.classList.add(input.tagName.toLowerCase() === 'select' ? 'select-warning' : 'input-warning');
+            return false;
+        }
+        
+        // Skip validation for empty optional fields
+        if (value === '' && !isRequired) {
+            return true;
+        }
+        
+        // Date validation
+        if (field === 'DateDebutFormation' || field === 'DateFinFormation') {
+            if (value) {
+                const selectedDate = new Date(value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate < today) {
+                    input.classList.add('input-invalid');
+                    showErrorMessage(container, 'La date ne peut pas être dans le passé');
+                    return false;
+                }
+                
+                // Check if end date is after start date
+                if (field === 'DateFinFormation') {
+                    const startDateInput = input.closest('tr').querySelector('[data-field="DateDebutFormation"]');
+                    if (startDateInput.value && new Date(startDateInput.value) >= selectedDate) {
+                        input.classList.add('input-invalid');
+                        showErrorMessage(container, 'Date de fin doit être après la date de début');
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        // Handle select validation
+        const rule = validationRules[field];
+        if (rule && value !== '') {
+            let isValid = true;
+            
+            if (rule.values) {
+                // Select validation
+                isValid = rule.values.includes(value);
+                input.classList.add(isValid ? 'select-valid' : 'select-invalid');
+            } else if (rule.pattern) {
+                // Pattern validation for inputs
+                isValid = rule.pattern.test(value);
+                input.classList.add(isValid ? 'input-valid' : 'input-invalid');
+            }
+            
+            if (!isValid) {
+                showErrorMessage(container, rule.message);
+                return false;
+            }
+        }
+        
+        // Special validation for email uniqueness (simplified)
+        if (field === 'AdresseEmail' && value !== '') {
+            const currentRow = input.closest('tr');
+            const allEmailInputs = document.querySelectorAll('[data-field="AdresseEmail"]');
+            const duplicateFound = Array.from(allEmailInputs).some(emailInput => {
+                return emailInput !== input && 
+                       emailInput.closest('tr') !== currentRow && 
+                       emailInput.value.trim().toLowerCase() === value.toLowerCase();
+            });
+            
+            if (duplicateFound) {
+                input.classList.remove('input-valid');
+                input.classList.add('input-invalid');
+                showErrorMessage(container, 'Cet email existe déjà');
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    // Show error message function
+    function showErrorMessage(container, message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+        container.appendChild(errorDiv);
+    }
+
+    // Initialize event listeners
     document.addEventListener("DOMContentLoaded", function () {
+        // Search functionality
         const searchInput = document.getElementById("search-input");
         const tableRows = document.querySelectorAll("#apprenantsTable tbody tr");
 
         searchInput.addEventListener("input", function () {
             const query = searchInput.value.toLowerCase().trim();
             tableRows.forEach(row => {
+                if (row.getAttribute('data-id') === 'new') return; // Skip new row
+                
                 const cells = row.querySelectorAll("td input");
                 let match = false;
                 cells.forEach(cell => {
@@ -210,66 +680,201 @@
             });
         });
 
+        // Download button
         document.getElementById("download-btn").addEventListener("click", () => {
-            window.location.href = "/download-apprenants-excel";
+            // Add loading spinner
+            const btn = document.getElementById("download-btn");
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> Téléchargement...';
+            btn.disabled = true;
+            
+            // Simulate download (replace with actual endpoint)
+            setTimeout(() => {
+                window.location.href = "/download-apprenants-excel";
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 1000);
         });
 
+        // Add button - scroll to new row
         document.getElementById("add-btn").addEventListener("click", () => {
-            const lastRow = document.querySelector("#apprenantsTable tbody tr:last-child");
-            lastRow.scrollIntoView({ behavior: "smooth" });
-            lastRow.querySelector("input")?.focus();
+            const newRow = document.querySelector('[data-id="new"]');
+            newRow.scrollIntoView({ behavior: "smooth", block: "center" });
+            
+            setTimeout(() => {
+                const firstInput = newRow.querySelector("input");
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 500);
         });
 
+        // Enhanced save functionality
         document.getElementById("save-btn").addEventListener("click", async () => {
-            const rows = document.querySelectorAll("#apprenantsTable tbody tr");
-            const data = [];
-            rows.forEach(row => {
-                const id = row.getAttribute("data-id");
-                const inputs = row.querySelectorAll("input");
-                const rowData = {};
-                inputs.forEach(input => {
-                    const field = input.getAttribute("data-field");
-                    rowData[field] = input.value.trim();
-                });
-                const hasData = Object.values(rowData).some(val => val !== "");
-                if (!hasData) return;
-                if (id === "new") data.push({ action: "create", fields: rowData });
-                else data.push({ action: "update", id: parseInt(id), fields: rowData });
-            });
+            const saveBtn = document.getElementById("save-btn");
+            const originalContent = saveBtn.innerHTML;
+            
             try {
-                const response = await fetch("/admin/save-apprenants", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
+                saveBtn.innerHTML = '<div class="spinner"></div> Sauvegarde...';
+                saveBtn.disabled = true;
+                
+                const rows = document.querySelectorAll("#apprenantsTable tbody tr");
+                const data = [];
+                let hasErrors = false;
+                
+                // Validate all inputs and selects
+                const allInputs = document.querySelectorAll("#apprenantsTable input, #apprenantsTable select");
+                allInputs.forEach(input => {
+                    if (!validateInput(input)) {
+                        hasErrors = true;
+                    }
                 });
-                const result = await response.json();
-                if (result.status === "success") location.reload();
-                else alert("Erreur : " + result.message);
-            } catch (err) {
-                alert("Erreur serveur : " + err.message);
+                
+                if (hasErrors) {
+                    showNotification("Veuillez corriger les erreurs avant de sauvegarder", "error");
+                    return;
+                }
+                
+                // Collect data
+                rows.forEach(row => {
+                    const id = row.getAttribute("data-id");
+                    const inputs = row.querySelectorAll("input, select");
+                    const rowData = {};
+                    
+                    inputs.forEach(input => {
+                        const field = input.getAttribute("data-field");
+                        rowData[field] = input.value.trim();
+                    });
+
+                    const hasData = Object.values(rowData).some(val => val !== "");
+                    if (!hasData) return;
+                    
+                    if (id === "new") {
+                        data.push({ action: "create", fields: rowData });
+                    } else {
+                        data.push({ action: "update", id: parseInt(id), fields: rowData });
+                    }
+                    
+                });
+
+                
+                // Simulate API call (replace with actual endpoint)
+                  const response = await fetch("/admin/save-apprenants", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                // Ajoutez d'autres headers si nécessaire (ex: Authorization)
+                // "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            body: JSON.stringify(data)
+        });
+
+        // Vérifiez si la réponse est ok
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        
+        // Gérez la réponse selon la structure de votre API
+        if (result.status === "success") {
+            showNotification("Données sauvegardées avec succès ✅");
+            
+            // Option 1: Recharger la page
+            // location.reload();
+            
+            // Option 2: Mettre à jour l'interface sans recharger
+            // updateUIAfterSave(result.data);
+            
+        } else {
+            // Si votre API retourne des erreurs dans result.message
+            throw new Error(result.message || "Erreur inconnue");
+        }
+        
+    } catch (error) {
+        console.error("Erreur lors de la sauvegarde:", error);
+        
+        // Gestion des différents types d'erreurs
+        let errorMessage = "Erreur lors de la sauvegarde";
+        
+        if (error.name === "TypeError" && error.message.includes("fetch")) {
+            errorMessage = "Erreur de connexion au serveur";
+        } else if (error.message.includes("HTTP")) {
+            errorMessage = "Erreur serveur: " + error.message;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+        
+        showNotification(errorMessage, "error");
+        
+    } finally {
+        saveBtn.innerHTML = originalContent;
+        saveBtn.disabled = false;
+    }
+});
+
+
+        // Add validation listeners to all inputs and selects
+        document.querySelectorAll("#apprenantsTable input, #apprenantsTable select").forEach(input => {
+            input.addEventListener("input", () => validateInput(input));
+            input.addEventListener("change", () => validateInput(input));
+            input.addEventListener("blur", () => validateInput(input));
+        });
+
+        // Initial validation
+        document.querySelectorAll("#apprenantsTable input, #apprenantsTable select").forEach(input => {
+            if (input.value.trim() !== '') {
+                validateInput(input);
             }
         });
     });
 
+    // Delete row function
     function deleteRow(button) {
         const row = button.closest("tr");
         const id = row.getAttribute("data-id");
+        
         if (id === "new") {
-            row.remove();
+            // Clear the new row instead of removing it
+            row.querySelectorAll('input, select').forEach(input => {
+                if (input.tagName.toLowerCase() === 'select') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+                input.classList.remove('input-valid', 'input-invalid', 'input-warning', 'select-valid', 'select-invalid', 'select-warning');
+            });
             return;
         }
-        if (!confirm("Confirmer la suppression ?")) return;
+        
+        if (!confirm("Êtes-vous sûr de vouloir supprimer cet apprenant ?")) return;
+        
+        // Simulate delete API call
         fetch(`/admin/delete-apprenant/${id}`, { method: "DELETE" })
             .then(res => res.json())
             .then(result => {
-                if (result.status === "success") row.remove();
-                else alert("Erreur : " + result.message);
+                if (result.status === "success") {
+                    row.style.animation =    "fadeOut 0.3s ease";
+                    setTimeout(() => row.remove(), 300);
+                    showNotification("Apprenant supprimé avec succès");
+                } else {
+                    showNotification("Erreur lors de la suppression: " + result.message, "error");
+                }
             })
-            .catch(err => alert("Erreur serveur : " + err.message));
+            .catch(err => {
+                showNotification("Erreur serveur: " + err.message, "error");
+            });
     }
 </script>
+
+<style>
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(-100%); }
+}
+</style>
 </body>
-</html>
+</html> 
 
 
 

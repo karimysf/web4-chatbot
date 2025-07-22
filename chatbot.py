@@ -5,7 +5,7 @@ import os
 from config import urlize
 from config import *
 from db import *
-from routes.auth_route import auth_bp
+from routes.auth_2 import auth_bp
 from routes.admin_route import admin_bp
 from routes.chat_route import chatbot_bp
 from routes.course_route import course_bp
@@ -51,6 +51,6 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.jinja_env.filters['urlize'] = urlize
 
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=True, use_reloader=False,port=5001)
 
 
