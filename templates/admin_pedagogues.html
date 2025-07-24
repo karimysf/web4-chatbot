@@ -3,212 +3,579 @@
 <head>
     <title>Gestion des Responsables Pédagogiques - Administrateur</title>
     <style>
-        html, body {
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --secondary-color: #6b7280;
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --border-focus: #6366f1;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            overflow-x: hidden;
+        }
+
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .main-container {
+            min-height: 100vh;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(237, 245, 245, 0.99) 0%, rgba(244, 242, 247, 0.935) 100%);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
         }
 
         .data-container {
-            width: 100%;
-            padding: 20px;
+            max-width: 1400px;
             margin: 0 auto;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .controls-section {
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+        }
+
+        .search-input {
+            width: 400px;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-btn {
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: flex-start;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .table-container {
             overflow-x: auto;
+            max-height: 70vh;
         }
 
         .data-grid {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             background: white;
         }
 
         .data-grid th {
-            background: #8052e6;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
             color: white;
-            padding: 15px;
+            padding: 1rem;
             text-align: left;
             position: sticky;
             top: 0;
-            z-index: 2;
+            z-index: 10;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .data-grid td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0f0f0;
-            min-width: 120px;
-            position: relative;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            min-width: 150px;
+            vertical-align: middle;
         }
 
-        .data-grid input {
+        .data-grid tr:hover {
+            background: #f8fafc;
+        }
+
+        .form-input {
             width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            background: white;
         }
 
-        .action-bar {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: flex-start;
-            gap: 10px;
+        .form-input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
+        .form-input.error {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
         }
 
-        .btn-save {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-download {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-add {
-            background: #ffc107;
-            color: white;
-        }
-
-        .btn-delete {
-            background: #dc3545;
-            color: white;
+        .form-input.success {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
 
         .password-container {
             position: relative;
             display: flex;
             align-items: center;
-            gap: 5px;
         }
 
         .toggle-password {
+            position: absolute;
+            right: 0.75rem;
             background: none;
             border: none;
             cursor: pointer;
-            padding: 5px;
+            padding: 0.25rem;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary-color);
+        }
+
+        .validation-message {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            padding: 0.25rem 0;
+        }
+
+        .validation-message.error {
+            color: var(--danger-color);
+        }
+
+        .validation-message.success {
+            color: var(--success-color);
+        }
+
+        .field-container {
+            position: relative;
+        }
+
+        .tooltip {
             position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        input[type="date"] {
-            appearance: none;
-            -webkit-appearance: none;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: white;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') center/100% no-repeat;
-            color: #8052e6;
-        }
-
-        input::placeholder {
-            color: #999;
-            font-style: italic;
-        }
-
-        .search-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-            gap: 10px;
-        }
-
-        .search-container input {
-            width: 300px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .search-container button {
-            padding: 12px 20px;
-            background-color: #8052e6;
+            bottom: 100%;
+            left: 0;
+            background: var(--text-primary);
             color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 20;
         }
 
-        .search-container button:hover {
-            background-color: #6a40d0;
+        .field-container:hover .tooltip {
+            opacity: 1;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            color: white;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .action-bar {
+                justify-content: center;
+            }
+            
+            .data-grid th,
+            .data-grid td {
+                padding: 0.5rem;
+                min-width: 120px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="data-container">
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Rechercher un responsable pédagogique...">
-            <button id="search-button">Rechercher</button>
-        </div>
-
-        <div class="action-bar">
-            <button class="btn btn-download" id="download-btn">📥 Télécharger Excel</button>
-            <button class="btn btn-save" id="save-btn">💾 Sauvegarder</button>
-            <button class="btn btn-add" id="add-btn">➕ Ajouter</button>
-        </div>
-
-        <table class="data-grid" id="pedagoguesTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email</th>
-                    <th>Mot de passe</th>
-                    <th>Téléphone</th>
-                    <th>Ville</th>
-                    <th>Code Coupon</th>
-                    <th>Centre</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pedagogue in pedagogues %}
-                <tr data-id="{{ pedagogue.id }}">
-                    <td>{{ loop.index }}</td>
-                    <td><input data-field="Nom" value="{{ pedagogue.Nom or '' }}"></td>
-                    <td><input data-field="Prenom" value="{{ pedagogue.Prenom or '' }}"></td>
-                    <td><input type="email" data-field="AdresseEmail" value="{{ pedagogue.AdresseEmail or '' }}"></td>
-                    <td>
-                        <div class="password-container">
-                            <input type="password" data-field="MotDePasse" value="{{ pedagogue.MotDePasse or '' }}">
-                            <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
-                        </div>
-                    </td>
-                    <td><input type="tel" data-field="Phone" value="{{ pedagogue.Phone or '' }}"></td>
-                    <td><input data-field="Ville" value="{{ pedagogue.Ville or '' }}"></td>
-                    <td><input data-field="CodeCoupon" value="{{ pedagogue.CodeCoupon or '' }}"></td>
-                    <td><input data-field="Centre" value="{{ pedagogue.Centre or '' }}"></td>
-                    <td>
-                        <button class="btn btn-delete" onclick="deleteRow(this)">Supprimer</button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
     </div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1>Gestion des Responsables Pédagogiques</h1>
+            <p>Interface d'administration moderne et sécurisée</p>
+        </div>
+
+        <div class="data-container">
+            <div class="controls-section">
+                <div class="search-container">
+                    <input type="text" class="search-input" id="search-input" placeholder="🔍 Rechercher par nom, email, téléphone...">
+                    <button class="search-btn" id="search-button">Rechercher</button>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-download" id="download-btn">
+                        📥 Télécharger Excel
+                    </button>
+                    <button class="btn btn-save" id="save-btn">
+                        💾 Sauvegarder
+                    </button>
+                    <button class="btn btn-add" id="add-btn">
+                        ➕ Ajouter un responsable
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-grid" id="pedagoguesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Email</th>
+                            <th>Mot de passe</th>
+                            <th>Téléphone</th>
+                            <th>Ville</th>
+                            <th>Code Coupon</th>
+                            <th>Centre</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pedagogue in pedagogues %}
+                        <tr data-id="{{ pedagogue.id }}">
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <div class="field-container">
+                                    <input class="form-input" data-field="Nom" value="{{ pedagogue.Nom or '' }}" data-validation="name">
+                                    <div class="tooltip">Format: Lettres et espaces uniquement</div>
+                                    <div class="validation-message"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field-container">
+                                    <input class="form-input" data-field="Prenom" value="{{ pedagogue.Prenom or '' }}" data-validation="name">
+                                    <div class="tooltip">Format: Lettres et espaces uniquement</div>
+                                    <div class="validation-message"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field-container">
+                                    <input type="email" class="form-input" data-field="AdresseEmail" value="{{ pedagogue.AdresseEmail or '' }}" data-validation="email">
+                                    <div class="tooltip">Format: exemple@domaine.com</div>
+                                    <div class="validation-message"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field-container">
+                                    <div class="password-container">
+                                        <input type="password" class="form-input" data-field="MotDePasse" value="{{ pedagogue.MotDePasse or '' }}" data-validation="password">
+                                        <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
+                                    </div>
+                                    <div class="tooltip">8+ caractères, majuscule, minuscule, chiffre, symbole</div>
+                                    <div class="validation-message"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field-container">
+                                    <input type="tel" class="form-input" data-field="Phone" value="{{ pedagogue.Phone or '' }}" data-validation="phone">
+                                    <div class="tooltip">Format: 06/07/05XXXXXXXX ou +212XXXXXXXXX</div>
+                                    <div class="validation-message"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field-container">
+                                    <input class="form-input" data-field="Ville" value="{{ pedagogue.Ville or '' }}" data-validation="city">
+                                    <div class="tooltip">Nom de ville valide</div>
+                                    <div class="validation-message"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field-container">
+                                    <input class="form-input" data-field="CodeCoupon" value="{{ pedagogue.CodeCoupon or '' }}" data-validation="coupon">
+                                    <div class="tooltip">Code alphanumérique</div>
+                                    <div class="validation-message"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="field-container">
+                                    <input class="form-input" data-field="Centre" value="{{ pedagogue.Centre or '' }}" data-validation="center">
+                                    <div class="tooltip">Nom du centre</div>
+                                    <div class="validation-message"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-delete" onclick="deleteRow(this)">🗑️ Supprimer</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Validation patterns
+        const validationRules = {
+            name: {
+                pattern: /^[a-zA-ZÀ-ÿ\s]{2,30}$/,
+                message: "2-30 caractères, lettres uniquement"
+            },
+            email: {
+                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Format email invalide"
+            },
+            password: {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
+                message: "8+ caractères, maj/min/chiffre/symbole requis"
+            },
+            phone: {
+                pattern: /^(\+212|0)[567]\d{8}$/,
+                message: "Format: 06/07/05XXXXXXXX ou +212XXXXXXXXX"
+            },
+            city: {
+                pattern: /^[a-zA-ZÀ-ÿ\s-]{2,50}$/,
+                message: "Nom de ville valide requis"
+            },
+            coupon: {
+                pattern: /^[A-Z0-9]{3,20}$/,
+                message: "3-20 caractères alphanumériques majuscules"
+            },
+            center: {
+                pattern: /^[a-zA-ZÀ-ÿ\s-]{2,100}$/,
+                message: "Nom de centre valide requis"
+            }
+        };
+
+        let currentId = {{ pedagogues|length }} + 1;
+
+        // Validation function
+        function validateField(input) {
+            const validationType = input.getAttribute('data-validation');
+            const value = input.value.trim();
+            const rule = validationRules[validationType];
+            const messageElement = input.closest('.field-container').querySelector('.validation-message');
+            
+            if (!value) {
+                input.classList.remove('error', 'success');
+                messageElement.textContent = '';
+                messageElement.className = 'validation-message';
+                return null;
+            }
+            
+            const isValid = rule.pattern.test(value);
+            
+            if (isValid) {
+                input.classList.remove('error');
+                input.classList.add('success');
+                messageElement.textContent = '✓ Valide';
+                messageElement.className = 'validation-message success';
+                return true;
+            } else {
+                input.classList.remove('success');
+                input.classList.add('error');
+                messageElement.textContent = rule.message;
+                messageElement.className = 'validation-message error';
+                return false;
+            }
+        }
+
+        // Add validation listeners to all inputs
+        function addValidationListeners() {
+            document.querySelectorAll('.form-input[data-validation]').forEach(input => {
+                input.addEventListener('blur', () => validateField(input));
+                input.addEventListener('input', () => {
+                    // Clear previous validation on input
+                    if (input.classList.contains('error') || input.classList.contains('success')) {
+                        setTimeout(() => validateField(input), 500);
+                    }
+                });
+            });
+        }
+
+        // Password toggle functionality
         function togglePassword(button) {
             const input = button.parentElement.querySelector('input');
             if (input.type === 'password') {
@@ -219,38 +586,76 @@
                 button.textContent = '👁️';
             }
         }
-    </script>
-    <script>
+
+        // Search functionality
         document.addEventListener("DOMContentLoaded", function () {
             const searchInput = document.getElementById("search-input");
+            const searchButton = document.getElementById("search-button");
             const tableRows = document.querySelectorAll("#pedagoguesTable tbody tr");
 
-            searchInput.addEventListener("input", function () {
+            function performSearch() {
                 const query = searchInput.value.toLowerCase().trim();
 
                 tableRows.forEach(row => {
-                    const cells = row.querySelectorAll("td input");
+                    const inputs = row.querySelectorAll("input");
                     let match = false;
 
-                    cells.forEach(cell => {
-                        if (cell.value.toLowerCase().includes(query)) {
+                    inputs.forEach(input => {
+                        if (input.value.toLowerCase().includes(query)) {
                             match = true;
                         }
                     });
 
-                    row.style.display = match ? "" : "none";
+                    row.style.display = match || query === '' ? "" : "none";
                 });
-            });
-        });
-    </script>
-    <script>
-        document.getElementById('download-btn').addEventListener('click', function () {
-            window.location.href = '/download-pedagogues-excel';
-        });
-    </script>
-    <script>
-        let currentId = {{ pedagogues|length }} + 1;
+            }
 
+            searchInput.addEventListener("input", performSearch);
+            searchButton.addEventListener("click", performSearch);
+
+            addValidationListeners();
+        });
+
+        // Download functionality
+        document.getElementById('download-btn').addEventListener('click', function () {
+            showLoading();
+            // Simulate download delay
+            setTimeout(() => {
+                // Create a CSV content string
+                const rows = document.querySelectorAll('#pedagoguesTable tbody tr');
+                let csvContent = "ID,Nom,Prénom,Email,Mot de passe,Téléphone,Ville,Code Coupon,Centre\n";
+                
+                rows.forEach(row => {
+                    if (row.style.display !== 'none') {
+                        const cells = row.querySelectorAll('input');
+                        const rowData = [];
+                        rowData.push(row.querySelector('td:first-child').textContent); // ID
+                        
+                        cells.forEach(cell => {
+                            rowData.push(cell.value);
+                        });
+                        
+                        csvContent += rowData.join(',') + '\n';
+                    }
+                });
+                
+                // Create a download link
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'responsables_pedagogiques.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                hideLoading();
+                showNotification('Export CSV réussi', 'success');
+            }, 1000);
+        });
+
+        // Add new row
         document.getElementById('add-btn').addEventListener('click', () => {
             const table = document.getElementById('pedagoguesTable').getElementsByTagName('tbody')[0];
 
@@ -259,107 +664,226 @@
 
             newRow.innerHTML = `
                 <td>${currentId}</td>
-                <td><input data-field="Nom" placeholder="Nom"></td>
-                <td><input data-field="Prenom" placeholder="Prénom"></td>
-                <td><input type="email" data-field="AdresseEmail" placeholder="Email"></td>
                 <td>
-                    <div class="password-container">
-                        <input type="password" data-field="MotDePasse" placeholder="Mot de passe">
-                        <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
+                    <div class="field-container">
+                        <input class="form-input" data-field="Nom" placeholder="Nom" data-validation="name">
+                        <div class="tooltip">Format: Lettres et espaces uniquement</div>
+                        <div class="validation-message"></div>
                     </div>
                 </td>
-                <td><input type="tel" data-field="Phone" placeholder="Téléphone"></td>
-                <td><input data-field="Ville" placeholder="Ville"></td>
-                <td><input data-field="CodeCoupon" placeholder="Code Coupon"></td>
-                <td><input data-field="Centre" placeholder="Centre"></td>
                 <td>
-                    <button class="btn btn-delete" onclick="deleteRow(this)">Supprimer</button>
+                    <div class="field-container">
+                        <input class="form-input" data-field="Prenom" placeholder="Prénom" data-validation="name">
+                        <div class="tooltip">Format: Lettres et espaces uniquement</div>
+                        <div class="validation-message"></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="field-container">
+                        <input type="email" class="form-input" data-field="AdresseEmail" placeholder="Email" data-validation="email">
+                        <div class="tooltip">Format: exemple@domaine.com</div>
+                        <div class="validation-message"></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="field-container">
+                        <div class="password-container">
+                            <input type="password" class="form-input" data-field="MotDePasse" placeholder="Mot de passe" data-validation="password">
+                            <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
+                        </div>
+                        <div class="tooltip">8+ caractères, majuscule, minuscule, chiffre, symbole</div>
+                        <div class="validation-message"></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="field-container">
+                        <input type="tel" class="form-input" data-field="Phone" placeholder="06xxxxxxxx" data-validation="phone">
+                        <div class="tooltip">Format: 06/07/05XXXXXXXX ou +212XXXXXXXXX</div>
+                        <div class="validation-message"></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="field-container">
+                        <input class="form-input" data-field="Ville" placeholder="Ville" data-validation="city">
+                        <div class="tooltip">Nom de ville valide</div>
+                        <div class="validation-message"></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="field-container">
+                        <input class="form-input" data-field="CodeCoupon" placeholder="Code Coupon" data-validation="coupon">
+                        <div class="tooltip">Code alphanumérique</div>
+                        <div class="validation-message"></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="field-container">
+                        <input class="form-input" data-field="Centre" placeholder="Centre" data-validation="center">
+                        <div class="tooltip">Nom du centre</div>
+                        <div class="validation-message"></div>
+                    </div>
+                </td>
+                <td>
+                    <button class="btn btn-delete" onclick="deleteRow(this)">🗑️ Supprimer</button>
                 </td>
             `;
 
             table.appendChild(newRow);
             currentId++;
 
+            // Add validation listeners to new inputs
+            addValidationListeners();
+
             newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
-    </script>
-    <script>
-        document.getElementById('save-btn').addEventListener('click', () => {
-            const rows = document.querySelectorAll('#pedagoguesTable tbody tr');
-            const changes = [];
 
-            rows.forEach(row => {
-                const id = row.getAttribute('data-id');
-                const inputs = row.querySelectorAll('input');
-                const data = {};
+        // Save functionality with improved logic
+        document.getElementById('save-btn').addEventListener('click', async () => {
+    const rows = document.querySelectorAll('#pedagoguesTable tbody tr');
+    const changes = [];
+    let hasErrors = false;
 
-                inputs.forEach(input => {
-                    const field = input.getAttribute('data-field');
-                    const value = input.value;
-                    data[field] = value;
-                });
+    // First validate all fields
+    document.querySelectorAll('.form-input[data-validation]').forEach(input => {
+        const validationResult = validateField(input);
+        if (validationResult === false) {
+            hasErrors = true;
+        }
+    });
 
-                if (id === 'new') {
-                    changes.push({
-                        action: 'create',
-                        ...data
-                    });
-                }
-                else if (!isNaN(id)) {
-                    changes.push({
-                        action: 'update',
-                        id: parseInt(id),
-                        fields: data
-                    });
-                }
-            });
-
-            fetch('/save-pedagogues', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(changes)
-            })
-            .then(res => res.json())
-            .then(response => {
-                if (response.status === 'success') {
-                    alert("Sauvegarde réussie !");
-                    location.reload();
-                } else {
-                    alert("Erreur : " + response.message);
-                }
-            })
-            .catch(err => {
-                alert("Erreur réseau : " + err.message);
-            });
-        });
-    </script>
-    <script>
-function deleteRow(button) {
-    const row = button.closest("tr");
-    const pedagogueId = row.getAttribute("data-id");
-
-    if (!pedagogueId || pedagogueId === "new") {
-        row.remove();
+    if (hasErrors) {
+        showNotification('Veuillez corriger les erreurs avant de sauvegarder', 'error');
         return;
     }
 
-    if (!confirm("Voulez-vous vraiment supprimer ce responsable ?")) return;
+    // Collect all changes
+    rows.forEach(row => {
+        const id = row.getAttribute('data-id');
+        const inputs = row.querySelectorAll('input');
+        const data = {};
+        let hasData = false;
 
-    fetch(`/delete-pedagogue/${pedagogueId}`, {
-        method: "DELETE"
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === "success") {
-            row.remove();
+        inputs.forEach(input => {
+            const field = input.getAttribute('data-field');
+            const value = input.value.trim();
+            data[field] = value;
+            
+            if (value) {
+                hasData = true;
+            }
+        });
+
+        if (id === 'new') {
+            if (hasData) {
+                changes.push({
+                    action: 'create',
+                    ...data
+                });
+            }
         } else {
-            alert("Erreur lors de la suppression : " + data.message);
+            // Only include fields that have changed
+            const originalData = {};
+            const originalInputs = row.querySelectorAll('input[data-original-value]');
+            let hasChanges = false;
+            
+            originalInputs.forEach(input => {
+                const field = input.getAttribute('data-field');
+                const currentValue = input.value.trim();
+                const originalValue = input.getAttribute('data-original-value');
+                
+                if (currentValue !== originalValue) {
+                    data[field] = currentValue;
+                    hasChanges = true;
+                }
+            });
+
+            if (hasChanges) {
+                changes.push({
+                    action: 'update',
+                    id: parseInt(id),
+                    fields: data
+                });
+            }
         }
-    })
-    .catch(error => {
-        alert("Erreur réseau : " + error);
     });
-}
-</script>
+
+    if (changes.length === 0) {
+        showNotification('Aucune modification à sauvegarder', 'error');
+        return;
+    }
+
+    showLoading();
+
+    try {
+        // Send changes to the server
+        const response = await fetch('/save-pedagogues', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(changes)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Erreur lors de la sauvegarde');
+        }
+
+        // Handle successful response
+        showNotification(result.message || 'Sauvegarde réussie !', 'success');
+        
+        // Update new rows with actual IDs from the server
+        if (result.newIds) {
+            document.querySelectorAll('tr[data-id="new"]').forEach((row, index) => {
+                if (result.newIds[index]) {
+                    row.setAttribute('data-id', result.newIds[index]);
+                    // Store original values for future change detection
+                    row.querySelectorAll('input').forEach(input => {
+                        input.setAttribute('data-original-value', input.value.trim());
+                    });
+                }
+            });
+            currentId = Math.max(currentId, ...result.newIds) + 1;
+        } else {
+            // For updated rows, update their original values
+            document.querySelectorAll('tr:not([data-id="new"])').forEach(row => {
+                row.querySelectorAll('input').forEach(input => {
+                    input.setAttribute('data-original-value', input.value.trim());
+                });
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification(error.message || 'Erreur lors de la sauvegarde', 'error');
+    } finally {
+        hideLoading();
+    }
+});
+        // Utility functions
+        function showLoading() {
+            document.getElementById('loading').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('active');
+        }
+
+        function showNotification(message, type) {
+            // Remove existing notifications
+            document.querySelectorAll('.notification').forEach(n => n.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

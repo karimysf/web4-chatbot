@@ -5,3 +5,4 @@ db/
 chatbpt.sql
 __pycache__/
 utils/__pycache__/
+crud.py

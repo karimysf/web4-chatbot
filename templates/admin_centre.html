@@ -3,453 +3,764 @@
 <head>
     <title>Gestion des Responsables de Centre de Coding - Administrateur</title>
     <style>
+        :root {
+            --primary: #8052e6;
+            --primary-dark: #6a40d0;
+            --primary-light: #9d76f0;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
         .data-container {
-            padding: 20px;
-            max-width: 1400px;
+            padding: 30px;
+            max-width: 1600px;
             margin: 0 auto;
             overflow-x: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .data-grid-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
         }
 
         .data-grid {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             background: white;
         }
 
         .data-grid th {
-            background: #8052e6;
+            background: var(--primary);
             color: white;
-            padding: 15px;
+            padding: 16px;
             text-align: left;
             position: sticky;
             top: 0;
             z-index: 2;
+            font-weight: 500;
+            border-bottom: 2px solid var(--primary-dark);
         }
 
         .data-grid td {
-            padding: 12px 15px;
+            padding: 14px 16px;
             border-bottom: 1px solid #f0f0f0;
-            min-width: 120px;
+            min-width: 140px;
             position: relative;
+            transition: var(--transition);
+        }
+
+        .data-grid tr:hover td {
+            background-color: rgba(128, 82, 230, 0.05);
         }
 
         .data-grid input {
             width: 100%;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             font-size: 14px;
             box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        .data-grid input:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(128, 82, 230, 0.2);
         }
 
         .action-bar {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 6px;
+            border-radius: var(--border-radius);
             cursor: pointer;
             font-weight: 500;
-            transition: all 0.3s;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn i {
+            font-size: 16px;
         }
 
         .btn-save {
-            background: #28a745;
+            background: var(--success);
             color: white;
+        }
+
+        .btn-save:hover {
+            background: #218838;
+            transform: translateY(-1px);
         }
 
         .btn-download {
-            background: #007bff;
+            background: var(--info);
             color: white;
+        }
+
+        .btn-download:hover {
+            background: #138496;
+            transform: translateY(-1px);
         }
 
         .btn-add {
-            background: #ffc107;
+            background: var(--warning);
             color: white;
         }
 
+        .btn-add:hover {
+            background: #e0a800;
+            transform: translateY(-1px);
+        }
+
         .btn-delete {
-            background: #dc3545;
+            background: var(--danger);
             color: white;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+            transform: translateY(-1px);
         }
 
         .password-container {
             position: relative;
             display: flex;
             align-items: center;
-            gap: 5px;
         }
 
         .toggle-password {
             background: none;
             border: none;
             cursor: pointer;
-            padding: 5px;
+            padding: 8px;
             position: absolute;
             right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .toggle-password:hover {
+            color: var(--primary);
         }
 
         input[type="date"] {
             appearance: none;
             -webkit-appearance: none;
-            padding: 8px 12px;
+            padding: 10px 14px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             background-color: white;
         }
 
         input[type="date"]::-webkit-calendar-picker-indicator {
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>') center/100% no-repeat;
-            color: #8052e6;
+            color: var(--primary);
         }
 
         input::placeholder {
-            color: #999;
+            color: #aaa;
             font-style: italic;
         }
 
-        /* ✅ Barre de recherche centrée avec champ restreint */
+        /* Search bar */
         .search-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
-            gap: 10px;
+            margin-bottom: 25px;
+            gap: 12px;
         }
 
         .search-container input {
-            width: 300px;
-            padding: 12px;
+            width: 400px;
+            padding: 12px 20px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+            border-radius: 30px;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .search-container input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(128, 82, 230, 0.2);
+            outline: none;
         }
 
         .search-container button {
-            padding: 12px 20px;
-            background-color: #8052e6;
+            padding: 12px 24px;
+            background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .search-container button:hover {
-            background-color: #6a40d0;
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
         }
-    </style>
-    <script>
-        function togglePassword(button) {
-            const input = button.parentElement.querySelector('input');
-            if (input.type === 'password') {
-                input.type = 'text';
-                button.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                button.textContent = '👁️';
+
+        /* Validation styles */
+        .validation-message {
+            font-size: 12px;
+            color: var(--danger);
+            margin-top: 6px;
+            display: none;
+        }
+
+        .is-invalid {
+            border-color: var(--danger) !important;
+        }
+
+        .is-valid {
+            border-color: var(--success) !important;
+        }
+
+        /* Status message */
+        .status-message {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-message.success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            display: flex;
+        }
+
+        .status-message.error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            display: flex;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .data-container {
+                padding: 15px;
+            }
+            
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-container input,
+            .search-container button {
+                width: auto;
+            }
+            
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                justify-content: center;
             }
         }
-    </script>
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
     <div class="data-container">
+        <div class="header">
+            <h1 class="page-title">
+                <i class="fas fa-user-shield"></i> Gestion des Responsables de Centre
+            </h1>
+            <div class="action-bar">
+                <button class="btn btn-download" id="download-btn">
+                    <i class="fas fa-file-excel"></i> Télécharger Excel
+                </button>
+                <button class="btn btn-save" id="save-btn">
+                    <i class="fas fa-save"></i> Sauvegarder
+                </button>
+                <button class="btn btn-add" id="add-btn">
+                    <i class="fas fa-plus"></i> Ajouter
+                </button>
+            </div>
+        </div>
+
         <div class="search-container">
-            <input type="text" id="search-input" placeholder="Rechercher un responsable...">
-            <button id="search-button">Rechercher</button>
+            <input type="text" id="search-input" placeholder="Rechercher un responsable par nom, email ou centre...">
+            <button id="search-button">
+                <i class="fas fa-search"></i> Rechercher
+            </button>
         </div>
 
-        <div class="action-bar">
-            <button class="btn btn-download" id="download-btn">📥 Télécharger Excel</button>
-            <button class="btn btn-save" id="save-btn">💾 Sauvegarder</button>
-            <button class="btn btn-add" id="add-btn">➕ Ajouter</button>
+        <div id="status-message" class="status-message" style="display: none;"></div>
+
+        <div class="data-grid-container">
+            <table class="data-grid" id="responsablesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Mot de passe</th>
+                        <th>Téléphone</th>
+                        <th>Ville</th>
+                        <th>Centre</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if responsables|length > 0 %}
+                        {% for responsable in responsables %}
+                        <tr data-id="{{ responsable.id }}">
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <input data-field="Nom" value="{{ responsable.Nom or '' }}" data-validation="name">
+                                <div class="validation-message" data-for="Nom"></div>
+                            </td>
+                            <td>
+                                <input data-field="Prenom" value="{{ responsable.Prenom or '' }}" data-validation="name">
+                                <div class="validation-message" data-for="Prenom"></div>
+                            </td>
+                            <td>
+                                <input type="email" data-field="AdresseEmail" value="{{ responsable.AdresseEmail or '' }}" data-validation="email">
+                                <div class="validation-message" data-for="AdresseEmail"></div>
+                            </td>
+                            <td>
+                                <div class="password-container">
+                                    <input type="password" data-field="MotDePasse" value="{{ responsable.MotDePasse or '' }}" data-validation="password">
+                                    <button class="toggle-password" onclick="togglePassword(this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="validation-message" data-for="MotDePasse"></div>
+                            </td>
+                            <td>
+                                <input type="tel" data-field="Phone" value="{{ responsable.Phone or '' }}" data-validation="phone">
+                                <div class="validation-message" data-for="Phone"></div>
+                            </td>
+                            <td>
+                                <input data-field="Ville" value="{{ responsable.Ville or '' }}" data-validation="text">
+                                <div class="validation-message" data-for="Ville"></div>
+                            </td>
+                            <td>
+                                <input data-field="Centre" value="{{ responsable.Centre or '' }}" data-validation="text">
+                                <div class="validation-message" data-for="Centre"></div>
+                            </td>
+                            <td>
+                                <button class="btn btn-delete" onclick="deleteResponsable(this)">
+                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="empty-state">
+                                <i class="fas fa-user-slash" style="font-size: 48px; margin-bottom: 15px;"></i>
+                                <h3>Aucun responsable trouvé</h3>
+                                <p>Cliquez sur "Ajouter" pour créer un nouveau responsable</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
-
-        <table class="data-grid" id="responsablesTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Email</th>
-                    <th>Mot de passe</th>
-                    <th>Téléphone</th>
-                    <th>Ville</th>
-                    <th>Centre</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for responsable in responsables %}
-                <tr data-id="{{ responsable.id }}">
-                    <td>{{ loop.index }}</td>
-                    <td><input data-field="Nom" value="{{ responsable.Nom or '' }}"></td>
-                    <td><input data-field="Prenom" value="{{ responsable.Prenom or '' }}"></td>
-                    <td><input type="email" data-field="AdresseEmail" value="{{ responsable.AdresseEmail or '' }}"></td>
-                    <td>
-                        <div class="password-container">
-                            <input type="password" data-field="MotDePasse" value="{{ responsable.MotDePasse or '' }}">
-                            <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
-                        </div>
-                    </td>
-                    <td><input type="tel" data-field="Phone" value="{{ responsable.Phone or '' }}"></td>
-                    <td><input data-field="Ville" value="{{ responsable.Ville or '' }}"></td>
-                    <td><input data-field="Centre" value="{{ responsable.Centre or '' }}"></td>
-                    <td>
-                        <button class="btn btn-delete" onclick="deleteResponsable(this)">Supprimer</button>
-                    </td>
-                </tr>
-                {% endfor %}
-
-                <tr class="new-row" data-id="new">
-                    <td id="new-id-cell">Nouveau</td>
-                    <td><input data-field="Nom" placeholder="Nom"></td>
-                    <td><input data-field="Prenom" placeholder="Prénom"></td>
-                    <td><input type="email" data-field="AdresseEmail" placeholder="Email"></td>
-                    <td>
-                        <div class="password-container">
-                            <input type="password" data-field="MotDePasse" placeholder="Mot de passe">
-                            <button class="toggle-password" onclick="togglePassword(this)">👁️</button>
-                        </div>
-                    </td>
-                    <td><input type="tel" data-field="Phone" placeholder="Téléphone"></td>
-                    <td><input data-field="Ville" placeholder="Ville"></td>
-                    <td><input data-field="Centre" placeholder="Centre"></td>
-                    <td>
-                        <button class="btn btn-delete" onclick="deleteRow(this)">Supprimer</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
     </div>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const searchInput = document.getElementById("search-input");
-            const tableRows = document.querySelectorAll("#responsablesTable tbody tr");
+        // Règles de validation
+        const validationRules = {
+            name: {
+                pattern: /^[a-zA-ZÀ-ÿ\s]{2,30}$/,
+                message: "2-30 caractères alphabétiques"
+            },
+            email: {
+                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Format email invalide"
+            },
+            password: {
+                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
+                message: "8+ caractères avec majuscule, minuscule et chiffre"
+            },
+            phone: {
+                pattern: /^(\+212|0)[567]\d{8}$/,
+                message: "Format: 06/07/05XXXXXXXX ou +212XXXXXXXXX"
+            },
+            text: {
+                pattern: /^.{2,100}$/,
+                message: "2-100 caractères"
+            }
+        };
 
-            searchInput.addEventListener("input", function () {
-                const query = searchInput.value.toLowerCase().trim();
+        // Fonction de validation
+        function validateField(input) {
+            const validationType = input.dataset.validation;
+            const value = input.value.trim();
+            const rule = validationRules[validationType];
+            const messageElement = input.closest('td').querySelector(`[data-for="${input.dataset.field}"]`);
 
-                tableRows.forEach(row => {
-                    const cells = row.querySelectorAll("td input");
-                    let match = false;
+            if (!value) {
+                input.classList.remove('is-valid', 'is-invalid');
+                messageElement.style.display = 'none';
+                return false;
+            }
 
-                    cells.forEach(cell => {
-                        if (cell.value.toLowerCase().includes(query)) {
-                            match = true;
-                        }
-                    });
+            const isValid = rule.pattern.test(value);
 
-                    row.style.display = match ? "" : "none";
+            if (isValid) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                messageElement.style.display = 'none';
+                return true;
+            } else {
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                messageElement.textContent = rule.message;
+                messageElement.style.display = 'block';
+                return false;
+            }
+        }
+
+        // Ajout des écouteurs de validation
+        function setupValidation() {
+            document.querySelectorAll('[data-validation]').forEach(input => {
+                input.addEventListener('blur', () => validateField(input));
+                input.addEventListener('input', function() {
+                    if (this.classList.contains('is-invalid') || this.classList.contains('is-valid')) {
+                        validateField(this);
+                    }
                 });
             });
+        }
+
+        // Fonction pour basculer la visibilité du mot de passe
+        function togglePassword(button) {
+            const input = button.parentElement.querySelector('input');
+            const icon = button.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Afficher un message de statut
+        function showStatusMessage(message, isSuccess) {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.className = isSuccess ? 'status-message success' : 'status-message error';
+            statusElement.innerHTML = `
+                <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                ${message}
+            `;
+            statusElement.style.display = 'flex';
+            
+            setTimeout(() => {
+                statusElement.style.opacity = '0';
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                    statusElement.style.opacity = '1';
+                }, 300);
+            }, 5000);
+        }
+
+        // Recherche
+        document.getElementById("search-input").addEventListener("input", function() {
+            const query = this.value.toLowerCase().trim();
+            let hasResults = false;
+            
+            document.querySelectorAll("#responsablesTable tbody tr").forEach(row => {
+                if (row.querySelector('.empty-state')) return;
+                
+                const match = Array.from(row.querySelectorAll("td input")).some(input => 
+                    input.value.toLowerCase().includes(query)
+                );
+                row.style.display = match ? "" : "none";
+                if (match) hasResults = true;
+            });
+
+            // Show empty state if no results
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.style.display = hasResults ? 'none' : 'table-cell';
+            }
         });
-    </script>
-    <script>
-        document.getElementById("download-btn").addEventListener("click", function () {
+
+        // Téléchargement Excel
+        document.getElementById("download-btn").addEventListener("click", function() {
+            showStatusMessage("Préparation du fichier Excel...", true);
             window.location.href = "/download-responsables-excel";
         });
-    </script>
-    <script>
-        document.getElementById("add-btn").addEventListener("click", function () {
-            const newRow = document.querySelector("tr.new-row");
 
-            const nom = newRow.querySelector('[data-field="Nom"]').value.trim();
-            console.log(nom)
-            const prenom = newRow.querySelector('[data-field="Prenom"]').value.trim();
-            const email = newRow.querySelector('[data-field="AdresseEmail"]').value.trim();
-            const motdepasse = newRow.querySelector('[data-field="MotDePasse"]').value.trim();
+        // Ajout d'un nouveau responsable
+        document.getElementById("add-btn").addEventListener("click", function() {
+            const tbody = document.querySelector("#responsablesTable tbody");
+            const emptyState = document.querySelector('.empty-state');
+            
+            // Remove empty state if present
+            if (emptyState) {
+                emptyState.closest('tr').remove();
+            }
+            
+            const newId = document.querySelectorAll("#responsablesTable tbody tr").length + 1;
+            
+            const newRow = document.createElement('tr');
+            newRow.dataset.id = "new";
+            newRow.innerHTML = `
+                <td>${newId}</td>
+                <td>
+                    <input data-field="Nom" placeholder="Nom" data-validation="name">
+                    <div class="validation-message" data-for="Nom"></div>
+                </td>
+                <td>
+                    <input data-field="Prenom" placeholder="Prénom" data-validation="name">
+                    <div class="validation-message" data-for="Prenom"></div>
+                </td>
+                <td>
+                    <input type="email" data-field="AdresseEmail" placeholder="Email" data-validation="email">
+                    <div class="validation-message" data-for="AdresseEmail"></div>
+                </td>
+                <td>
+                    <div class="password-container">
+                        <input type="password" data-field="MotDePasse" placeholder="Mot de passe" data-validation="password">
+                        <button class="toggle-password" onclick="togglePassword(this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="validation-message" data-for="MotDePasse"></div>
+                </td>
+                <td>
+                    <input type="tel" data-field="Phone" placeholder="Téléphone" data-validation="phone">
+                    <div class="validation-message" data-for="Phone"></div>
+                </td>
+                <td>
+                    <input data-field="Ville" placeholder="Ville" data-validation="text">
+                    <div class="validation-message" data-for="Ville"></div>
+                </td>
+                <td>
+                    <input data-field="Centre" placeholder="Centre" data-validation="text">
+                    <div class="validation-message" data-for="Centre"></div>
+                </td>
+                <td>
+                    <button class="btn btn-delete" onclick="deleteResponsable(this)">
+                        <i class="fas fa-trash-alt"></i> Supprimer
+                    </button>
+                </td>
+            `;
+            
+            tbody.appendChild(newRow);
+            setupValidation();
+            newRow.scrollIntoView({ behavior: "smooth", block: "center" });
+            newRow.querySelector("input").focus();
+            
+            showStatusMessage("Nouveau responsable prêt à être rempli", true);
+        });
 
+        // Sauvegarde des modifications
+        document.getElementById("save-btn").addEventListener("click", async function() {
 
-            const phone = newRow.querySelector('[data-field="Phone"]').value.trim();
-            console.log(phone)
-            const ville = newRow.querySelector('[data-field="Ville"]').value.trim();
-            const centre = newRow.querySelector('[data-field="Centre"]').value.trim();
+            const rows = document.querySelectorAll("#responsablesTable tbody tr");
+            const changes = [];
+            let isValid = true;
 
-            if (!nom || !prenom || !email || !motdepasse) {
-                alert("Veuillez remplir tous les champs obligatoires.");
+            // Validation de tous les champs
+            document.querySelectorAll('[data-validation]').forEach(input => {
+                if (!validateField(input)) isValid = false;
+            });
+
+            if (!isValid) {
+                showStatusMessage("Veuillez corriger les erreurs avant de sauvegarder.", false);
                 return;
             }
 
-            fetch("/admin/add-responsable", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    Nom: nom,
-                    Prenom: prenom,
-                    Email: email,
-                    MotDePasse: motdepasse,
-                    Phone: phone,
-                    Ville: ville,
-                    Centre: centre
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    alert("Responsable ajouté avec succès !");
-                    window.location.reload();
-                } else {
-                    alert("Erreur lors de l'ajout : " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error("Erreur :", error);
-                alert("Erreur inattendue !");
-            });
-        });
-    </script>
-    <script>
-        document.getElementById("save-btn").addEventListener("click", () => {
-            const rows = document.querySelectorAll("#responsablesTable tbody tr");
-            const modifications = [];
-
-            rows.forEach(row => {
+            // Préparation des données
+            for (const row of rows) {
+                if (row.querySelector('.empty-state')) continue;
+                
                 const id = row.dataset.id;
-                if (id === "new") return;
-
                 const inputs = row.querySelectorAll("input");
                 const data = {};
 
                 inputs.forEach(input => {
-                    const field = input.getAttribute("data-field");
-                    if (field) {
-                        data[field] = input.value.trim();
+                    data[input.dataset.field] = input.value.trim();
+                });
+
+                if (id === "new") {
+                    if (data.Nom && data.Prenom && data.AdresseEmail) {
+                        changes.push({ action: "create", ...data });
                     }
-                });
-
-                modifications.push({
-                    id: parseInt(id),
-                    action: "update",
-                    fields: data
-                });
-            });
-
-            fetch("/save-centres", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(modifications)
-            })
-            .then(res => res.json())
-            .then(response => {
-                if (response.status === "success") {
-                    alert("Modifications enregistrées !");
-                    location.reload();
                 } else {
-                    alert("Erreur : " + (response.message || "inconnue"));
+                    changes.push({ action: "update", id: parseInt(id), fields: data });
                 }
-            })
-            .catch(error => {
-                console.error("Erreur AJAX :", error);
-                alert("Une erreur est survenue.");
-            });
-        });
-    </script>
-    <script>
-        document.getElementById("add-btn").addEventListener("click", () => {
-            const newRow = document.querySelector(".new-row");
-            if (newRow) {
-                const existingRows = document.querySelectorAll("tbody tr:not(.new-row)");
-                const nextId = existingRows.length + 1;
-
-                const idCell = document.getElementById("new-id-cell");
-                if (idCell) idCell.textContent = nextId;
-
-                newRow.scrollIntoView({ behavior: "smooth", block: "center" });
-                const firstInput = newRow.querySelector("input");
-                if (firstInput) firstInput.focus();
             }
-        });
 
-        document.getElementById("save-btn").addEventListener("click", () => {
-            const newRow = document.querySelector(".new-row");
-            if (!newRow) return;
-
-            const inputs = newRow.querySelectorAll("input");
-            const data = {};
-
-            inputs.forEach(input => {
-                const field = input.getAttribute("data-field");
-                if (field) data[field] = input.value.trim();
-            });
-
-            if (!data['Nom'] || !data['Prenom'] || !data['AdresseEmail']) {
-                alert("Nom, Prénom et Email sont requis.");
+            if (changes.length === 0) {
+                showStatusMessage("Aucune modification à sauvegarder.", false);
                 return;
             }
 
-            fetch('/save-centres', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify([{ action: 'create', data }])
-            })
-            .then(res => res.json())
-            .then(response => {
-                if (response.status === 'success') {
-                    alert("Responsable ajouté avec succès.");
+            try {
+                showStatusMessage("Enregistrement des modifications...", true);
+                
+                const response = await fetch("/save-centres", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(changes)
+                });
 
-                    const tbody = newRow.parentElement;
-                    const newIndex = document.querySelectorAll("tbody tr:not(.new-row)").length + 1;
+                const result = await response.json();
 
-                    const cloned = newRow.cloneNode(true);
-                    cloned.classList.remove("new-row");
-                    cloned.setAttribute("data-id", newIndex);
-                    cloned.querySelector("#new-id-cell").outerHTML = `<td>${newIndex}</td>`;
-
-                    tbody.insertBefore(cloned, newRow);
-
-                    newRow.querySelectorAll("input").forEach(i => i.value = '');
-                    document.getElementById("new-id-cell").textContent = newIndex + 1;
-
+                if (result.status === "success") {
+                    showStatusMessage("Modifications enregistrées avec succès !", true);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
                 } else {
-                    alert("Erreur : " + response.message);
+                    throw new Error(result.message || "Erreur inconnue");
                 }
-            })
-            .catch(err => {
-                console.error("Erreur AJAX:", err);
-                alert("Une erreur est survenue.");
-            });
+            } catch (error) {
+                console.error("Erreur:", error);
+                showStatusMessage("Erreur lors de la sauvegarde: " + error.message, false);
+            }
         });
-    </script>
-    <script>
+
+        // Suppression d'un responsable
         function deleteResponsable(button) {
             const row = button.closest("tr");
-            const responsableId = row.getAttribute("data-id");
+            const responsableId = row.dataset.id;
 
             if (responsableId === "new") {
-                row.querySelectorAll("input").forEach(i => i.value = '');
+                row.remove();
+                checkEmptyState();
                 return;
             }
 
             if (!confirm("Voulez-vous vraiment supprimer ce responsable ?")) return;
 
-            fetch(`/admin/delete-responsable/${responsableId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        row.remove();
-                        alert("Responsable supprimé avec succès.");
-                    } else {
-                        alert("Erreur lors de la suppression : " + data.message);
-                    }
-                })
-                .catch(err => {
-                    console.error("Erreur suppression :", err);
-                    alert("Échec de la suppression.");
-                });
+            showStatusMessage("Suppression en cours...", true);
+            
+            fetch(`/admin/delete-responsable/${responsableId}`, {
+                method: "DELETE"
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    row.remove();
+                    checkEmptyState();
+                    showStatusMessage("Responsable supprimé avec succès.", true);
+                } else {
+                    throw new Error(data.message || "Erreur inconnue");
+                }
+            })
+            .catch(error => {
+                console.error("Erreur:", error);
+                showStatusMessage("Erreur lors de la suppression: " + error.message, false);
+            });
         }
+
+        // Vérifier si le tableau est vide et afficher l'état vide
+        function checkEmptyState() {
+            const tbody = document.querySelector("#responsablesTable tbody");
+            const rows = tbody.querySelectorAll("tr");
+            
+            if (rows.length === 0 || (rows.length === 1 && rows[0].querySelector('.empty-state'))) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty-state">
+                            <i class="fas fa-user-slash" style="font-size: 48px; margin-bottom: 15px;"></i>
+                            <h3>Aucun responsable trouvé</h3>
+                            <p>Cliquez sur "Ajouter" pour créer un nouveau responsable</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Initialisation
+        document.addEventListener("DOMContentLoaded", function() {
+            setupValidation();
+            
+            // Add animation to table rows
+            document.querySelectorAll("#responsablesTable tbody tr").forEach((row, index) => {
+                if (!row.querySelector('.empty-state')) {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(20px)';
+                    row.style.transition = `all 0.3s ease ${index * 0.05}s`;
+                    
+                    setTimeout(() => {
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateY(0)';
+                    }, 50);
+                }
+            });
+        });
     </script>
 </body>
 </html>

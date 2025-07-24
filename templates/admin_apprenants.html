@@ -489,8 +489,8 @@
             message: 'Email invalide'
         },
         'MotDePasse': {
-            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-            message: 'Min 8 caractères avec au moins 1 majuscule, 1 minuscule et 1 chiffre'
+            pattern: /^(?=.*[a-z])(?=.*\d).{8,}$/,
+            message: 'Min 8 caractères avec au moins une lettre et 1 chiffre'
         },
         'Phone': {
             pattern: /^(\+212|0)[1-9](\d{8}|\s\d{2}\s\d{2}\s\d{2}\s\d{2})$/,
@@ -710,91 +710,108 @@
         });
 
         // Enhanced save functionality
-        document.getElementById("save-btn").addEventListener("click", async () => {
-            const saveBtn = document.getElementById("save-btn");
-            const originalContent = saveBtn.innerHTML;
+   // Enhanced save functionality
+document.getElementById("save-btn").addEventListener("click", async () => {
+    const saveBtn = document.getElementById("save-btn");
+    const originalContent = saveBtn.innerHTML;
+    
+    try {
+        saveBtn.innerHTML = '<div class="spinner"></div> Sauvegarde...';
+        saveBtn.disabled = true;
+        
+        const rows = document.querySelectorAll("#apprenantsTable tbody tr");
+        const data = [];
+        let hasErrors = false;
+        
+        // First collect all data to determine what's being modified
+        const allChanges = [];
+        rows.forEach(row => {
+            const id = row.getAttribute("data-id");
+            const inputs = row.querySelectorAll("input, select");
+            const rowData = {};
+            let hasData = false;
             
-            try {
-                saveBtn.innerHTML = '<div class="spinner"></div> Sauvegarde...';
-                saveBtn.disabled = true;
-                
-                const rows = document.querySelectorAll("#apprenantsTable tbody tr");
-                const data = [];
-                let hasErrors = false;
-                
-                // Validate all inputs and selects
-                const allInputs = document.querySelectorAll("#apprenantsTable input, #apprenantsTable select");
-                allInputs.forEach(input => {
-                    if (!validateInput(input)) {
-                        hasErrors = true;
-                    }
-                });
-                
-                if (hasErrors) {
-                    showNotification("Veuillez corriger les erreurs avant de sauvegarder", "error");
-                    return;
+            inputs.forEach(input => {
+                const field = input.getAttribute("data-field");
+                const value = input.value.trim();
+                if (value !== "") {
+                    rowData[field] = value;
+                    hasData = true;
                 }
-                
-                // Collect data
-                rows.forEach(row => {
-                    const id = row.getAttribute("data-id");
-                    const inputs = row.querySelectorAll("input, select");
-                    const rowData = {};
-                    
-                    inputs.forEach(input => {
-                        const field = input.getAttribute("data-field");
-                        rowData[field] = input.value.trim();
-                    });
-
-                    const hasData = Object.values(rowData).some(val => val !== "");
-                    if (!hasData) return;
-                    
-                    if (id === "new") {
-                        data.push({ action: "create", fields: rowData });
-                    } else {
-                        data.push({ action: "update", id: parseInt(id), fields: rowData });
+                // For existing rows, track original values to detect changes
+                if (id !== "new") {
+                    const originalValue = input.getAttribute('data-original-value') || input.defaultValue;
+                    if (value !== originalValue) {
+                        rowData[field] = value;
+                        hasData = true;
                     }
-                    
-                });
+                }
+            });
 
-                
-                // Simulate API call (replace with actual endpoint)
-                  const response = await fetch("/admin/save-apprenants", {
+            if (id === "new" && !hasData) {
+                return; // Skip empty new rows
+            }
+            
+            if (hasData) {
+                allChanges.push({
+                    id: id,
+                    isNew: id === "new",
+                    row: row,
+                    data: rowData
+                });
+            }
+        });
+
+        // Now validate only the rows that have changes
+        allChanges.forEach(change => {
+            const inputs = change.row.querySelectorAll("input, select");
+            inputs.forEach(input => {
+                if (!validateInput(input)) {
+                    hasErrors = true;
+                }
+            });
+        });
+        
+        if (hasErrors) {
+            showNotification("Veuillez corriger les erreurs avant de sauvegarder", "error");
+            return;
+        }
+        
+        // Prepare final data to send
+        allChanges.forEach(change => {
+            if (change.isNew) {
+                data.push({ action: "create", fields: change.data });
+            } else {
+                data.push({ action: "update", id: parseInt(change.id), fields: change.data });
+            }
+        });
+
+        if (data.length === 0) {
+            showNotification("Aucune modification à sauvegarder", "info");
+            return;
+        }
+        
+        const response = await fetch("/admin/save-apprenants", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                // Ajoutez d'autres headers si nécessaire (ex: Authorization)
-                // "Authorization": "Bearer " + localStorage.getItem("token")
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
 
-        // Vérifiez si la réponse est ok
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
         }
 
         const result = await response.json();
         
-        // Gérez la réponse selon la structure de votre API
         if (result.status === "success") {
             showNotification("Données sauvegardées avec succès ✅");
-            
-            // Option 1: Recharger la page
-            // location.reload();
-            
-            // Option 2: Mettre à jour l'interface sans recharger
-            // updateUIAfterSave(result.data);
-            
+            setTimeout(() => location.reload(), 1500);
         } else {
-            // Si votre API retourne des erreurs dans result.message
             throw new Error(result.message || "Erreur inconnue");
         }
         
     } catch (error) {
         console.error("Erreur lors de la sauvegarde:", error);
-        
-        // Gestion des différents types d'erreurs
         let errorMessage = "Erreur lors de la sauvegarde";
         
         if (error.name === "TypeError" && error.message.includes("fetch")) {

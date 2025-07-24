@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web4.Jobs - Connexion</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">  
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">  
 </head>
 <body>
     <div class="background-pattern"></div>
@@ -18,6 +18,17 @@
                 <p>Connectez-vous à votre espace de formation</p>
             </div>
         </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
         <form class="login-form" action="/authenticate" method="POST">
             <div class="form-group">

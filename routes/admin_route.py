@@ -3,6 +3,7 @@
 from utils.db import get_db_connection
 from flask import Blueprint, render_template, request, redirect, url_for,  session, jsonify
 import mysql.connector
+from utils.hash import hash_password,is_hashed
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -356,7 +357,6 @@ ALLOWED_FIELDS_APPRENANTS = {
     'DateFinFormation', 'Centre', 'NiveauDeConnaissance'
 }
 
-# Mise à jour de la route /admin/save-apprenants
 @admin_bp.route('/admin/save-apprenants', methods=['POST'])
 def save_apprenants():
     if session.get('user_type') != 'Administrateur':
@@ -369,7 +369,6 @@ def save_apprenants():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Convertir les dates vides en NULL
         def parse_date(value):
             return None if value in ['', None] else value
 
@@ -378,6 +377,11 @@ def save_apprenants():
             
             if action == 'create':
                 fields = change.get('fields', {})
+                
+                # Handle password hashing for new apprenants
+                if 'MotDePasse' in fields and fields['MotDePasse']:
+                    if not is_hashed(fields['MotDePasse']):
+                        fields['MotDePasse'] = hash_password(fields['MotDePasse'])
                 
                 cursor.execute("""
                     INSERT INTO Apprenants (
@@ -393,7 +397,7 @@ def save_apprenants():
                     fields.get('Phone'),
                     fields.get('Ville'),
                     fields.get('TypeDeFormation'),
-                    fields.get('CodeCoupon') or None,  # Conversion en NULL si vide
+                    fields.get('CodeCoupon') or None,
                     parse_date(fields.get('DateDebutFormation')),
                     parse_date(fields.get('DateFinFormation')),
                     fields.get('Centre'),
@@ -404,6 +408,11 @@ def save_apprenants():
                 fields = change.get('fields', {})
                 set_clause = []
                 values = []
+                
+                # Handle password hashing for updates
+                if 'MotDePasse' in fields and fields['MotDePasse']:
+                    if not is_hashed(fields['MotDePasse']):
+                        fields['MotDePasse'] = hash_password(fields['MotDePasse'])
                 
                 for field, value in fields.items():
                     if field == 'DateDebutFormation' or field == 'DateFinFormation':
@@ -424,7 +433,6 @@ def save_apprenants():
 
             elif action == 'delete':
                 apprenant_id = change.get('id')
-                # Suppression en cascade manuelle
                 cursor.execute("DELETE FROM Presence WHERE apprenant_id = %s", (apprenant_id,))
                 cursor.execute("DELETE FROM PresenceCentre WHERE apprenant_id = %s", (apprenant_id,))
                 cursor.execute("DELETE FROM Apprenants WHERE id = %s", (apprenant_id,))
@@ -436,8 +444,8 @@ def save_apprenants():
         })
 
     except mysql.connector.Error as err:
-        conn.rollback()
-        print(f"Erreur MySQL: {err.msg}")
+        if conn:
+            conn.rollback()
         return jsonify({
             'status': 'error',
             'message': f'Erreur de base de données: {err.msg}',
@@ -445,8 +453,8 @@ def save_apprenants():
         }), 500
 
     except Exception as e:
-        conn.rollback()
-        print(f"Erreur générale: {str(e)}")
+        if conn:
+            conn.rollback()
         return jsonify({
             'status': 'error',
             'message': f'Erreur inattendue: {str(e)}'
@@ -457,7 +465,6 @@ def save_apprenants():
             cursor.close()
         if conn:
             conn.close()
-
 
 @admin_bp.route('/admin/add-apprenant', methods=['POST'])
 def add_apprenant():
@@ -542,6 +549,7 @@ def save_centres():
 
             elif change['action'] == 'create':
                 new_data = change.get('data', {})
+                
                 query = """
                     INSERT INTO Responsable_de_centre_de_coding
                     (Nom, Prenom, AdresseEmail, MotDePasse, Phone, Ville, CodeCoupon, Centre)
