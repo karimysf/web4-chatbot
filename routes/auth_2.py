@@ -1,7 +1,7 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash
 from utils.db import get_db_connection  
 from datetime import datetime
-from utils.hash import verify_password
+from utils.hash import verify_password,hash_password
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -20,10 +20,10 @@ def authenticate():
         cursor = conn.cursor(dictionary=True)
 
         table_map = {
-            "Apprenants": "Apprenants",
-            "ResponsablePedagogique": "ResponsablePedagogique",
-            "Responsable_de_centre_de_coding": "Responsable_de_centre_de_coding",
-            "Administrateur": "Administrateur"  # Note: There's a typo here - should match your actual table name
+            "Apprenants",
+            "ResponsablePedagogique",
+             "Responsable_de_centre_de_coding",
+            "Administrateur"  
         }
 
         if user_type not in table_map:
@@ -32,7 +32,7 @@ def authenticate():
 
         # First check if user exists
         cursor.execute(f'''
-            SELECT * FROM {table_map[user_type]}
+            SELECT * FROM {user_type}
             WHERE AdresseEmail = %s
         ''', (email,))
         user = cursor.fetchone()
@@ -85,3 +85,88 @@ def authenticate():
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
         return redirect(url_for('auth.login'))
+    
+
+@auth_bp.route('/register', methods=['GET'])
+def register():
+    return render_template('register.html')
+
+
+@auth_bp.route('/register', methods=['POST'])
+def handle_register():
+    # Get form data
+    user_type = request.form.get('user_type')
+    nom = request.form.get('nom')
+    prenom = request.form.get('prenom')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+    phone = request.form.get('phone')
+    ville = request.form.get('ville')
+    
+    # Validate passwords match
+    if password != confirm_password:
+        flash('Les mots de passe ne correspondent pas', 'error')
+        return redirect(url_for('auth.register'))
+    
+    # Hash the password
+    hashed_password = hash_password(password)
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check if email already exists
+        cursor.execute(f"SELECT AdresseEmail FROM {user_type} WHERE AdresseEmail = %s", (email,))
+        if cursor.fetchone():
+            flash('Cet email est déjà utilisé', 'error')
+            return redirect(url_for('auth.register'))
+        
+        # Handle different user types
+        if user_type == 'Apprenants':
+            type_formation = request.form.get('type_formation')
+            code_coupon = request.form.get('code_coupon')
+            niveau_connaissance = request.form.get('niveau_connaissance')
+            
+            cursor.execute("""
+                INSERT INTO Apprenants 
+                (Nom, Prenom, AdresseEmail, MotDePasse, Phone, Ville, 
+                 TypeDeFormation, CodeCoupon, NiveauDeConnaissance)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                nom, prenom, email, hashed_password, phone, ville,
+                type_formation, code_coupon, niveau_connaissance
+            ))
+            
+        elif user_type == 'Responsable_de_centre_de_coding':
+            centre = request.form.get('centre')
+            
+            cursor.execute("""
+                INSERT INTO Responsable_de_centre_de_coding 
+                (Nom, Prenom, AdresseEmail, MotDePasse, Phone, Ville, Centre)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (
+                nom, prenom, email, hashed_password, phone, ville, centre
+            ))
+            
+        elif user_type == 'ResponsablePedagogique':
+            # Add specific fields for Responsable Pédagogique if needed
+            cursor.execute("""
+                INSERT INTO ResponsablePedagogique 
+                (Nom, Prenom, AdresseEmail, MotDePasse, Phone, Ville)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (
+                nom, prenom, email, hashed_password, phone, ville
+            ))
+            
+        conn.commit()
+        flash('Inscription réussie! Vous pouvez maintenant vous connecter.', 'success')
+        return redirect(url_for('auth.login'))
+        
+    except Exception as e:
+        conn.rollback()
+        flash(f"Erreur lors de l'inscription: {str(e)}", 'error')
+        return redirect(url_for('auth.register'))
+    finally:
+        cursor.close()
+        conn.close()

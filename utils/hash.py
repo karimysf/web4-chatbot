@@ -13,10 +13,10 @@ def verify_password(hashed_password: str, password: str) -> bool:
         return False
     
 
-pwd=hash_password("12345")
-
-print(verify_password(pwd,'12345'))
 
 def is_hashed(password: str) -> bool:
     """Check if the password is already hashed (Argon2 format)"""
     return password.startswith("$argon2id$")
+
+print(f" admin email : admin@gmail.com \n admin password: admin123  ")
+print(f"apprenant email: final@gmail.com password: app123 ")

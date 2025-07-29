@@ -15,6 +15,7 @@ from routes.export_route import export_bp
 from routes.dashboard_route import dash_bp
 from routes.tutoriel_route import tuto_bp
 from routes.respo_coding_route import respo_bp
+from routes.pedagogie_route import pedagogie
 
 #l'email doit pas etre utilise dans l'url faut corriger ca 
 #pour la messagerie les message sont bloques et pas tout s'affichent
@@ -41,6 +42,8 @@ app.register_blueprint(export_bp)
 app.register_blueprint(dash_bp)
 app.register_blueprint(tuto_bp)
 app.register_blueprint(respo_bp)
+app.register_blueprint(pedagogie)
+
 
 
 

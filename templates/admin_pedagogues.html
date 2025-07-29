@@ -508,8 +508,8 @@
                 message: "Format email invalide"
             },
             password: {
-                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
-                message: "8+ caractères, maj/min/chiffre/symbole requis"
+                pattern:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+                message: "8+ caractères, maj/min/chiffre requis"
             },
             phone: {
                 pattern: /^(\+212|0)[567]\d{8}$/,
@@ -522,7 +522,7 @@
             coupon: {
                 pattern: /^[A-Z0-9]{3,20}$/,
                 message: "3-20 caractères alphanumériques majuscules"
-            },
+            },  
             center: {
                 pattern: /^[a-zA-ZÀ-ÿ\s-]{2,100}$/,
                 message: "Nom de centre valide requis"

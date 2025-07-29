@@ -250,12 +250,21 @@
   </div>
 
   <script>
+   
+
     const emojis = ["😊", "😃", "😄", "😍", "😎", "🤗", "🤩", "😇", "😉", "😌"];
 
     function getRandomEmoji() {
       return emojis[Math.floor(Math.random() * emojis.length)];
     }
-
+     function listenForEnter()
+     {document.addEventListener('keypress',(event)=>
+       {console.log("key pressed: "+event.key)
+        if (event.key=='Enter')
+            sendMessage()
+      })
+    }
+    
     function sendMessage() {
       const input = document.getElementById('messageInput');
       const message = input.value.trim();
@@ -415,6 +424,9 @@ d      .then(data => {
           loadHistory();
         });
     }
+   
+    listenForEnter();
+    
 
     // Charger l'historique au chargement de la page
     document.addEventListener('DOMContentLoaded', loadHistory);

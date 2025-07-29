@@ -64,6 +64,10 @@
             <button type="submit" class="login-button">
                 Se connecter <i class="fas fa-arrow-right"></i>
             </button>
+            
+            <div class="signup-link">
+                <p>Pas encore de compte? <a href="{{ url_for('auth.register') }}">S'inscrire</a></p>
+            </div>
         </form>
 
         <div class="help-message">

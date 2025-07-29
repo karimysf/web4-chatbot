@@ -16,7 +16,6 @@ def chat():
 
     user_id = session.get('user_id')
 
-    # Gérer l'identifiant de session : nouveau ou existant
     if "session_id" not in session:
         session["session_id"] = str(uuid.uuid4())
 
@@ -216,7 +215,8 @@ def envoyer_message():
             if not result:
 
                 flash('Destinataire introuvable', 'error')
-                return redirect(url_for('chatbot.envoyer_message'))
+                print("Desintataire non introuvable")
+                return  jsonify({"Destinatire non trouve"}),400
           
             destinataire_role = result[0]
           
@@ -255,6 +255,7 @@ def envoyer_message():
         return redirect(url_for('chatbot.messagerie'))
 
     return render_template('envoyer_message.html')
+
 
 
 

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web4.Jobs - Inscription</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">  
+</head>
+<body>
+    <div class="background-pattern"></div>
+
+    <div class="login-container">
+        <div class="logo-header">
+            <img src="/static/PROFIL.png" alt="Web4.Jobs Logo" class="logo">
+            <div class="welcome-text">
+                <h1>Créer un compte</h1>
+                <p>Rejoignez notre communauté de formation</p>
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form class="login-form" action="/register" method="POST">
+            <div class="form-group">
+                <label for="user_type">Profil utilisateur</label>
+                <i class="fas fa-user-tag input-icon"></i>
+                <select id="user_type" name="user_type" class="form-control" required onchange="showFields()">
+                    <option value="" disabled selected>Sélectionnez votre profil</option>
+                    <option value="Apprenants">Apprenant</option>
+                    <option value="ResponsablePedagogique">Responsable Pédagogique</option>
+                    <option value="Responsable_de_centre_de_coding">Responsable de centre de coding</option>
+                </select>
+            </div>
+
+            <!-- Common fields for all user types -->
+            <div class="form-group">
+                <label for="nom">Nom</label>
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="nom" name="nom" class="form-control" placeholder="Votre nom" required>
+            </div>
+
+            <div class="form-group">
+                <label for="prenom">Prénom</label>
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="prenom" name="prenom" class="form-control" placeholder="Votre prénom" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Adresse e-mail</label>
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" id="email" name="email" class="form-control" placeholder="exemple@web4jobs.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirmer le mot de passe</label>
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Téléphone</label>
+                <i class="fas fa-phone input-icon"></i>
+                <input type="tel" id="phone" name="phone" class="form-control" placeholder="Votre numéro de téléphone" required>
+            </div>
+
+            <div class="form-group">
+                <label for="ville">Ville</label>
+                <i class="fas fa-city input-icon"></i>
+                <input type="text" id="ville" name="ville" class="form-control" placeholder="Votre ville" required>
+            </div>
+
+            <!-- Apprenant specific fields -->
+            <div id="apprenant_fields" class="user-type-fields" style="display:none;">
+                <div class="form-group">
+                    <label for="type_formation">Type de formation</label>
+                    <i class="fas fa-graduation-cap input-icon"></i>
+                    <select id="type_formation" name="type_formation" class="form-control">
+                        <option value="" disabled selected>Sélectionnez une formation</option>
+                        <option value="Développement Web">Développement Web</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Cybersécurité">Cybersécurité</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="code_coupon">Code coupon (optionnel)</label>
+                    <i class="fas fa-ticket-alt input-icon"></i>
+                    <input type="text" id="code_coupon" name="code_coupon" class="form-control" placeholder="Entrez votre code promotionnel">
+                </div>
+
+                <div class="form-group">
+                    <label for="niveau_connaissance">Niveau de connaissance</label>
+                    <i class="fas fa-chart-line input-icon"></i>
+                    <select id="niveau_connaissance" name="niveau_connaissance" class="form-control">
+                        <option value="Débutant">Débutant</option>
+                        <option value="Intermédiaire">Intermédiaire</option>
+                        <option value="Avancé">Avancé</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Responsable de centre specific fields -->
+            <div id="responsable_centre_fields" class="user-type-fields" style="display:none;">
+                <div class="form-group">
+                    <label for="centre">Centre</label>
+                    <i class="fas fa-building input-icon"></i>
+                    <input type="text" id="centre" name="centre" class="form-control" placeholder="Nom du centre">
+                </div>
+            </div>
+
+            <button type="submit" class="login-button">
+                S'inscrire <i class="fas fa-user-plus"></i>
+            </button>
+            
+            <div class="signup-link">
+                <p>Déjà un compte? <a href="{{ url_for('auth.login') }}">Se connecter</a></p>
+            </div>
+        </form>
+
+        <div class="help-message">
+            <p>Besoin d'aide pour s'inscrire 👋. 
+                <a href="mailto:mulongochristian044@gmail.com" class="contact-link">
+                    Cliquez ici pour contacter l'administrateur.
+                </a>
+            </p>
+        </div>
+
+        <p class="footer-text">© 2025 Web4.Jobs. Tous droits réservés.</p>
+    </div>
+
+    <div class="image-container"></div>
+
+    <script>
+        function showFields() {
+            const userType = document.getElementById('user_type').value;
+            document.querySelectorAll('.user-type-fields').forEach(field => {
+                field.style.display = 'none';
+            });
+            
+            if (userType === 'Apprenants') {
+                document.getElementById('apprenant_fields').style.display = 'block';
+            } else if (userType === 'Responsable_de_centre_de_coding') {
+                document.getElementById('responsable_centre_fields').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

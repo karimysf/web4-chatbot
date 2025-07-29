@@ -149,8 +149,34 @@ def save_pedagogues():
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # First pass: Validate all emails before making any changes
         for change in data:
-            # Logique de création
+            if change['action'] in ['create', 'update']:
+                email = change.get('AdresseEmail') or change.get('fields', {}).get('AdresseEmail')
+                if email:
+                    # Check if email exists (excluding current record for updates)
+                    query = """
+                        SELECT id FROM ResponsablePedagogique 
+                        WHERE LOWER(AdresseEmail) = LOWER(%s)
+                    """
+                    params = [email]
+                    
+                    if change['action'] == 'update':
+                        query += " AND id != %s"
+                        params.append(change['id'])
+                    
+                    cursor.execute(query, params)
+                    if cursor.fetchone():
+                        return jsonify({
+                            'status': 'error',
+                            'message': f"L'email {email} est déjà utilisé",
+                            'error_code': 'email_taken',
+                            'duplicate_email': email
+                        }), 400
+
+        # Second pass: Process changes if all validations passed
+        new_ids = []
+        for change in data:
             if change['action'] == 'create':
                 cursor.execute("""
                     INSERT INTO ResponsablePedagogique
@@ -160,33 +186,31 @@ def save_pedagogues():
                     change.get('Nom', ''),
                     change.get('Prenom', ''),
                     change.get('AdresseEmail', ''),
-                    change.get('MotDePasse', ''),
+                    change.get('MotDePasse', ''),  # Should be hashed
                     change.get('Phone', ''),
                     change.get('Ville', ''),
                     change.get('CodeCoupon', ''),
                     change.get('Centre', '')
                 ))
+                new_ids.append(cursor.lastrowid)
 
-            # Logique de mise à jour
             elif change['action'] == 'update':
                 fields = change.get('fields', {})
-                set_clause = []
-                values = []
+                if fields:
+                    set_clause = []
+                    values = []
+                    for field, value in fields.items():
+                        set_clause.append(f"{field} = %s")
+                        values.append(value)
+                    values.append(change['id'])
 
-                for field, value in fields.items():
-                    set_clause.append(f"{field} = %s")
-                    values.append(value)
+                    query = f"""
+                        UPDATE ResponsablePedagogique
+                        SET {', '.join(set_clause)}
+                        WHERE id = %s
+                    """
+                    cursor.execute(query, values)
 
-                values.append(change['id'])  # pour WHERE id = %s
-
-                query = f"""
-                    UPDATE ResponsablePedagogique
-                    SET {', '.join(set_clause)}
-                    WHERE id = %s
-                """
-                cursor.execute(query, values)
-
-            # Logique de suppression
             elif change['action'] == 'delete':
                 cursor.execute("""
                     DELETE FROM ResponsablePedagogique
@@ -194,22 +218,35 @@ def save_pedagogues():
                 """, (change['id'],))
 
         conn.commit()
-        return jsonify({'status': 'success', 'message': 'Modifications sauvegardées'})
+        return jsonify({
+            'status': 'success',
+            'message': 'Modifications sauvegardées',
+            'new_ids': new_ids
+        })
 
     except mysql.connector.Error as err:
         conn.rollback()
-        print(f"Database error: {err}")
-        return jsonify({'status': 'error', 'message': str(err)}), 500
+        error_msg = f"Database error: {err}"
+        print(error_msg)
+        return jsonify({
+            'status': 'error',
+            'message': 'Erreur de base de données',
+            'error_details': str(err)
+        }), 500
 
     except Exception as e:
         conn.rollback()
-        print(f"General error: {str(e)}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        error_msg = f"General error: {str(e)}"
+        print(error_msg)
+        return jsonify({
+            'status': 'error',
+            'message': 'Erreur lors de la sauvegarde',
+            'error_details': str(e)
+        }), 500
 
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
-
         
 @admin_bp.route('/add-pedagogue', methods=['POST'])
 def add_pedagogue():
@@ -221,26 +258,56 @@ def add_pedagogue():
         conn = get_db_connection()
         cursor = conn.cursor()
         
+        # First check if email already exists (case-insensitive comparison)
+        cursor.execute("""
+            SELECT id FROM ResponsablePedagogique 
+            WHERE LOWER(AdresseEmail) = LOWER(%s)
+            LIMIT 1
+        """, (data['AdresseEmail'],))
+        
+        existing_pedagogue = cursor.fetchone()
+        print("what is this !!")
+        if existing_pedagogue:
+            return jsonify({
+                'status': 'error',
+                'message': 'Cet email est déjà utilisé par un autre responsable',
+                'error_code': 'email_taken'
+            }), 400
+        
+        # If email is unique, proceed with insertion
         cursor.execute("""
             INSERT INTO ResponsablePedagogique 
             (Nom, Prenom, AdresseEmail, MotDePasse, Phone, Ville, CodeCoupon, Centre)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
         """, (
             data['Nom'],
             data['Prenom'],
             data['AdresseEmail'],
-            data['MotDePasse'],
+            data['MotDePasse'],  # Note: You should hash the password before storing
             data['Phone'],
             data['Ville'],
             data['CodeCoupon'],
             data['Centre']
         ))
         
+        # Get the ID of the newly created pedagogue
+        new_id = cursor.fetchone()[0]
         conn.commit()
-        return jsonify({'status': 'success'})
+        
+        return jsonify({
+            'status': 'success',
+            'message': 'Responsable pédagogique ajouté avec succès',
+            'pedagogue_id': new_id
+        })
+        
     except Exception as e:
         conn.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'status': 'error',
+            'message': f"Une erreur s'est produite: {str(e)}"
+        }), 500
+        
     finally:
         cursor.close()
         conn.close()
@@ -592,7 +659,6 @@ def admin_add_user():
     # Récupérez les autres champs du formulaire
     
     try:
-        print("hacked yeah!!!!!")
         conn = get_db_connection()
         cursor = conn.cursor()
         

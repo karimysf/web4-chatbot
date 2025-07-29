@@ -558,7 +558,6 @@
         button.title = isPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe';
     }
 
-    // Enhanced validation function
     function validateInput(input) {
         const field = input.getAttribute('data-field');
         const value = input.type === 'select-one' ? input.value : input.value.trim();
@@ -838,12 +837,12 @@ document.getElementById("save-btn").addEventListener("click", async () => {
             input.addEventListener("blur", () => validateInput(input));
         });
 
-        // Initial validation
-        document.querySelectorAll("#apprenantsTable input, #apprenantsTable select").forEach(input => {
-            if (input.value.trim() !== '') {
-                validateInput(input);
-            }
-        });
+        // // Initial validation
+        // document.querySelectorAll("#apprenantsTable input, #apprenantsTable select").forEach(input => {
+        //     if (input.value.trim() !== '') {
+        //         validateInput(input);
+        //     }
+        // });
     });
 
     // Delete row function

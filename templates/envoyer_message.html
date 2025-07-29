@@ -14,6 +14,8 @@
             --dark-color: #2D3436;
             --light-color: #F5F6FA;
             --success-color: #00B894;
+            --error-color: #e74c3c;
+            --warning-color: #f39c12;
             --border-color: #DFE6E9;
         }
         
@@ -96,6 +98,33 @@
             border-color: var(--primary-light);
             box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
             background-color: white;
+        }
+        
+        /* Validation styles */
+        input.valid, textarea.valid {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+        }
+        
+        input.invalid, textarea.invalid {
+            border-color: var(--error-color);
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+        
+        .validation-message {
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .validation-message.valid {
+            color: var(--success-color);
+            display: block;
+        }
+        
+        .validation-message.invalid {
+            color: var(--error-color);
+            display: block;
         }
         
         textarea {
@@ -276,6 +305,14 @@
             margin-top: 5px;
         }
         
+        .character-count.warning {
+            color: var(--warning-color);
+        }
+        
+        .character-count.error {
+            color: var(--error-color);
+        }
+        
         .attachment-preview {
             display: flex;
             gap: 10px;
@@ -326,15 +363,17 @@
     <div class="message-form-container">
         <h2><i class="fas fa-paper-plane" style="margin-right: 10px;"></i> Nouveau message</h2>
         
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" id="messageForm">
             <div class="form-group">
                 <label for="destinataire"><i class="fas fa-user" style="margin-right: 8px;"></i> Destinataire</label>
                 <input type="email" id="destinataire" name="destinataire" required placeholder="email@exemple.com">
+                <div class="validation-message" id="emailValidation"></div>
             </div>
             
             <div class="form-group">
                 <label for="sujet"><i class="fas fa-tag" style="margin-right: 8px;"></i> Sujet</label>
                 <input type="text" id="sujet" name="sujet" required placeholder="Objet de votre message">
+                <div class="validation-message" id="subjectValidation"></div>
             </div>
             
             <div class="form-group">
@@ -353,7 +392,6 @@
                     <button type="button" class="tool-button" onclick="formatText('underline')">
                         <i class="fas fa-underline"></i>
                     </button>
-                    
                 </div>
                 
                 <div class="emoji-container">
@@ -368,6 +406,7 @@
                 </div>
                 
                 <textarea id="messageContent" name="contenu" required placeholder="Écrivez votre message ici..."></textarea>
+                <div class="validation-message" id="messageValidation"></div>
                 <div class="character-count"><span id="charCount">0</span>/2000 caractères</div>
                 
                 <div class="attachment-preview" id="attachmentPreview"></div>
@@ -408,7 +447,142 @@
             document.getElementById('emojiSearch').addEventListener('input', handleSearch);
             document.getElementById('messageContent').addEventListener('input', updateCharacterCount);
             updateCharacterCount();
+            
+            // Setup validation on input change
+            document.getElementById('destinataire').addEventListener('input', validateEmail);
+            document.getElementById('sujet').addEventListener('input', validateSubject);
+            document.getElementById('messageContent').addEventListener('input', validateMessage);
+            
+            // Form submission handler
+            document.getElementById('messageForm').addEventListener('submit', handleFormSubmit);
         });
+
+        // XSS Sanitization function
+        function sanitizeInput(input) {
+            return input.replace(/[&<>"'`]/g, function(match) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;',
+                    '`': '&#96;'
+                }[match];
+            });
+        }
+
+        // Validation functions
+        function validateEmail() {
+            const emailInput = document.getElementById('destinataire');
+            const validationMsg = document.getElementById('emailValidation');
+            const email = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email === '') {
+                emailInput.classList.remove('valid', 'invalid');
+                validationMsg.classList.remove('valid', 'invalid');
+                validationMsg.textContent = '';
+                return false;
+            }
+            
+            if (emailRegex.test(email)) {
+                emailInput.classList.remove('invalid');
+                emailInput.classList.add('valid');
+                validationMsg.classList.remove('invalid');
+                validationMsg.classList.add('valid');
+                validationMsg.textContent = '';
+
+              
+                return true;
+            } else {
+                emailInput.classList.remove('valid');
+                emailInput.classList.add('invalid');
+                validationMsg.classList.remove('valid');
+                validationMsg.classList.add('invalid');
+                validationMsg.textContent = 'Veuillez entrer une adresse email valide';
+                return false;
+            }
+        }
+
+        function validateSubject() {
+            const subjectInput = document.getElementById('sujet');
+            const validationMsg = document.getElementById('subjectValidation');
+            const subject = subjectInput.value.trim();
+            
+            if (subject === '') {
+                subjectInput.classList.remove('valid', 'invalid');
+                validationMsg.classList.remove('valid', 'invalid');
+                validationMsg.textContent = '';
+                return false;
+            }
+            
+            if (subject.length >= 1 && subject.length <= 100) {
+                subjectInput.classList.remove('invalid');
+                subjectInput.classList.add('valid');
+                validationMsg.classList.remove('invalid');
+                validationMsg.classList.add('valid');
+             validationMsg.textContent = '';
+
+          
+                return true;
+            } else {
+                subjectInput.classList.remove('valid');
+                subjectInput.classList.add('invalid');
+                validationMsg.classList.remove('valid');
+                validationMsg.classList.add('invalid');
+                validationMsg.textContent = ''
+                return false;
+            }
+        }
+
+        function validateMessage() {
+            const messageInput = document.getElementById('messageContent');
+            const validationMsg = document.getElementById('messageValidation');
+            const message = messageInput.value.trim();
+            
+            if (message === '') {
+                messageInput.classList.remove('valid', 'invalid');
+                validationMsg.classList.remove('valid', 'invalid');
+                validationMsg.textContent = '';
+                return false;
+            }
+            
+            if (message.length >= 1 && message.length <= 2000) {
+                messageInput.classList.remove('invalid');
+                messageInput.classList.add('valid');
+                validationMsg.classList.remove('invalid');
+                validationMsg.classList.add('valid');
+                validationMsg.textContent = '';
+                return true;
+            } else {
+                messageInput.classList.remove('valid');
+                messageInput.classList.add('invalid');
+                validationMsg.classList.remove('valid');
+                validationMsg.classList.add('invalid');
+                validationMsg.textContent = 'Le message doit contenir entre 1 et 2000 caractères';
+                return false;
+            }
+        }
+
+        function handleFormSubmit(e) {
+            // Validate all fields
+            const isEmailValid = validateEmail();
+            const isSubjectValid = validateSubject();
+            const isMessageValid = validateMessage();
+            
+            if (!isEmailValid || !isSubjectValid || !isMessageValid) {
+                e.preventDefault();
+                alert('Veuillez corriger les erreurs dans le formulaire avant de soumettre.');
+                return;
+            }
+            
+            // Sanitize all inputs
+            document.getElementById('destinataire').value = sanitizeInput(document.getElementById('destinataire').value);
+            document.getElementById('sujet').value = sanitizeInput(document.getElementById('sujet').value);
+            document.getElementById('messageContent').value = sanitizeInput(document.getElementById('messageContent').value);
+            
+            // If everything is valid, form will submit normally
+        }
 
         // Gestion des emojis
         function toggleEmojiPicker() {
@@ -424,6 +598,7 @@
             textarea.focus();
             textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
             updateCharacterCount();
+            validateMessage();
             toggleEmojiPicker();
         }
 
@@ -486,6 +661,7 @@
             textarea.focus();
             textarea.selectionStart = start;
             textarea.selectionEnd = start + wrappedText.length;
+            validateMessage();
         }
 
         // Gestion des pièces jointes
@@ -559,12 +735,14 @@
             const count = textarea.value.length;
             charCount.textContent = count;
             
+            // Update character count styling
+            const counterElement = document.querySelector('.character-count');
+            counterElement.classList.remove('warning', 'error');
+            
             if (count > 1800) {
-                charCount.style.color = '#e74c3c';
+                counterElement.classList.add('error');
             } else if (count > 1500) {
-                charCount.style.color = '#f39c12';
-            } else {
-                charCount.style.color = '#7f8c8d';
+                counterElement.classList.add('warning');
             }
         }
 
@@ -573,7 +751,7 @@
             const picker = document.getElementById('emojiPicker');
             const button = document.querySelector('.tool-button:nth-child(1)');
             
-            if (!picker.contains(event.target) && !button.contains(event.target)) {
+            if (picker && button && !picker.contains(event.target) && !button.contains(event.target)) {
                 picker.style.display = 'none';
             }
         });
