@@ -312,9 +312,12 @@
 
     <div class="main-content">
         <div class="knowledge-base-container">
-            <div class="knowledge-base-header">
-                <h2>Base de connaissances</h2>
-            </div>
+                  <div class="knowledge-base-header">
+    <h2>Base de connaissances</h2>
+    <p style="color: red; font-size: 14px; margin-top: 5px;">
+        Veuillez ne pas insérer de données sensibles ou confidentielles dans la base de connaissances.
+    </p>
+</div>
 
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Rechercher dans la base de connaissances...">
@@ -370,69 +373,96 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const menuToggle = document.getElementById('menu-toggle');
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-            menuToggle.addEventListener('click', function () {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            });
+document.addEventListener('DOMContentLoaded', function () {
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    menuToggle.addEventListener('click', function () {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('expanded');
+    });
 
-            const searchInput = document.getElementById('search-input');
-            const fileItems = document.querySelectorAll('.file-item');
-            searchInput.addEventListener('keyup', function () {
-                const query = searchInput.value.toLowerCase();
-                fileItems.forEach(function (item) {
-                    const title = item.querySelector('span').textContent.toLowerCase();
-                    item.style.display = title.includes(query) ? 'flex' : 'none';
-                });
-            });
-
-            const addButton = document.getElementById('add-button');
-            const cancelButton = document.getElementById('cancel-button');
-            const formContainer = document.getElementById('knowledge-form');
-            addButton.addEventListener('click', function () {
-                formContainer.classList.add('show');
-            });
-            cancelButton.addEventListener('click', function () {
-                formContainer.classList.remove('show');
-            });
+    const searchInput = document.getElementById('search-input');
+    const fileItems = document.querySelectorAll('.file-item');
+    searchInput.addEventListener('keyup', function () {
+        const query = searchInput.value.toLowerCase();
+        fileItems.forEach(function (item) {
+            const title = item.querySelector('span').textContent.toLowerCase();
+            item.style.display = title.includes(query) ? 'flex' : 'none';
         });
+    });
 
-        let lastScrollTop = 0;
-        const toggleButton = document.getElementById('menu-toggle');
-        window.addEventListener('scroll', function () {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (scrollTop > lastScrollTop) {
-                // Scrolling down
-                toggleButton.classList.add('hidden');
-            } else {
-                // Scrolling up
-                toggleButton.classList.remove('hidden');
+    const addButton = document.getElementById('add-button');
+    const cancelButton = document.getElementById('cancel-button');
+    const formContainer = document.getElementById('knowledge-form');
+    addButton.addEventListener('click', function () {
+        formContainer.classList.add('show');
+    });
+    cancelButton.addEventListener('click', function () {
+        formContainer.classList.remove('show');
+    });
+
+    const knowledgeForm = document.getElementById('knowledgeForm');
+    knowledgeForm.addEventListener('submit', function(e) {
+        e.preventDefault();  // Prevent default form submission
+        const formData = new FormData(knowledgeForm);
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text || 'Erreur serveur'); });
             }
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        }, false);
+            return response.text();
+        })
+        .then(data => {
+            alert(data); // Success message
+            knowledgeForm.reset();
+            formContainer.classList.remove('show');
+            window.location.reload();
+        })
+        .catch(err => {
+            console.error('Erreur upload:', err);
+            alert('Erreur lors de l\'upload : ' + err.message);
+        });
+    });
 
-        function deleteKnowledgeFile(fileId) {
-            if (!confirm("Êtes-vous sûr de vouloir supprimer ce fichier de la base de connaissances ?")) return;
-            fetch(`/api/delete-knowledge/${fileId}`, {
-                method: 'DELETE'
-            })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById(`file-${fileId}`).remove();
-                    alert("Fichier supprimé avec succès.");
-                } else {
-                    response.json().then(data => {
-                        alert("Erreur : " + (data.error || "Échec de la suppression."));
-                    });
-                }
-            })
-            .catch(error => {
-                alert("Erreur réseau : " + error);
+    let lastScrollTop = 0;
+    const toggleButton = document.getElementById('menu-toggle');
+    window.addEventListener('scroll', function () {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop > lastScrollTop) {
+            toggleButton.classList.add('hidden');
+        } else {
+            toggleButton.classList.remove('hidden');
+        }
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    }, false);
+});
+
+// Déclarer deleteKnowledgeFile globalement
+function deleteKnowledgeFile(fileId) {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce fichier de la base de connaissances ?")) return;
+    fetch(`/api/delete-knowledge/${fileId}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            document.getElementById(`file-${fileId}`).remove();
+            alert("Fichier supprimé avec succès.");
+        } else {
+            response.json().then(data => {
+                alert("Erreur : " + (data.error || "Échec de la suppression."));
             });
         }
-    </script>
+    })
+    .catch(error => {
+        alert("Erreur réseau : " + error);
+    });
+}
+</script>
+
 </body>
 </html>

@@ -1,4 +1,3 @@
-
 from flask import render_template , session , redirect , url_for ,request ,Blueprint
 from datetime import datetime
 
@@ -11,12 +10,9 @@ def dashboard():
     if not user_type:
         return redirect(url_for('auth.login'))
 
-    if user_type == "Responsable_de_centre_de_coding":
-        return render_template('respo_coding_dashboard.html',title="respo_coding_dash")
-    elif user_type == "Apprenants":
-        return render_template('learn_dashboard.html')
-    elif user_type == "ResponsablePedagogique":
-        return render_template('pedagogical_dash.html')
+
+    elif user_type == "Administrateur":
+        return render_template('admin_dash.html')
 
     return redirect(url_for('auth.login'))
 
@@ -27,25 +23,6 @@ def knowledge_base():
         return redirect(url_for('dash.dashboard'))
     return render_template('knowledge_base_2')
 
-@dash_bp.route('/tutorials')
-def tutorials():
-    if session.get('user_type') == 'Apprenants':
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM Tutoriels")
-        tutoriels = cursor.fetchall()
-        cursor.close()
-        conn.close()
-
-        for tuto in tutoriels:
-            match = re.search(
-                r'(?:youtu\.be/|youtube\.com/(?:embed/|v/|watch\?v=|watch\?.+&v=))([^?&]+)',
-                tuto['video_url']
-            )
-            tuto['video_id'] = match.group(1) if match else None
-
-        return render_template('learner_tuto.html', tutoriels=tutoriels)
-    return redirect(url_for('auth.login'))
 
 
 

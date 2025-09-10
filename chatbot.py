@@ -17,8 +17,7 @@ from routes.tutoriel_route import tuto_bp
 from routes.respo_coding_route import respo_bp
 from routes.pedagogie_route import pedagogie
 
-#l'email doit pas etre utilise dans l'url faut corriger ca 
-#pour la messagerie les message sont bloques et pas tout s'affichent
+
 
 
 #une mauvaise gestion de session ( la deconnection d'une personne n'est prise en compte que s'il appuie sur logout

@@ -6,6 +6,11 @@ chatbot_bp=Blueprint('chatbot', __name__)
 
 @chatbot_bp.route("/chatbot")
 def chatbot():
+    user_type = session.get('user_type')
+    
+    if not user_type:
+        return redirect(url_for('auth.login'))  # Redirige vers la page de login si non connecté
+
     return render_template('chatbot.html', url_for=url_for)
 
 
@@ -80,12 +85,25 @@ def get_history():
 
 @chatbot_bp.route('/delete-conversation/<int:conversation_id>', methods=['DELETE'])
 def delete_conversation(conversation_id):
+    user_id = session.get('user_id')  # Vérifie que l'utilisateur est connecté
+    if not user_id:
+        return jsonify({"error": "Unauthorized"}), 401
+
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    # Supprimer uniquement si la conversation appartient à l'utilisateur connecté
     cursor.execute("""
         DELETE FROM historique
-        WHERE id = %s
-    """, (conversation_id,))
+        WHERE id = %s AND user_id = %s
+    """, (conversation_id, user_id))
+    
+    if cursor.rowcount == 0:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        return jsonify({"error": "Conversation not found or not allowed"}), 404
+
     conn.commit()
     cursor.close()
     conn.close()

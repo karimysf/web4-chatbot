@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web4.Jobs - Admin Login</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+    body {
+        min-height:100vh;
+        display:flex; align-items:center; justify-content:center;
+        background: linear-gradient(135deg, #f3f4f6, #e5e7eb); /* blanc/gris clair */
+        color:#0f172a;
+    }
+
+    .login-card {
+        background: #ffffff; /* carte blanche */
+        border-radius:25px;
+        padding:3rem 2rem;
+        width:100%; max-width:420px;
+        box-shadow:0 15px 40px rgba(0,0,0,0.1);
+        animation: fadeInUp 0.6s ease-out;
+        position:relative;
+    }
+    @keyframes fadeInUp { from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:translateY(0);} }
+
+    .logo {
+        display:block; margin:0 auto 1.5rem;
+        width:120px;
+        border: top 20px;;
+    }
+
+    h1 {
+        text-align:center; font-weight:700; font-size:2rem; margin-bottom:2rem;
+        color:#4c1d95; /* violet foncé */
+    }
+
+    .form-group { margin-bottom:1.8rem; position:relative; }
+    .form-group i {
+        position:absolute; top:50%; left:15px; transform:translateY(-50%);
+        color:#6b7280;
+    }
+    .form-control {
+        width:100%; padding:1rem 1rem 1rem 3rem;
+        border-radius:15px; border:1px solid #d1d5db;
+        background: #f9fafb; color:#111827;
+        font-size:1rem; transition: all 0.3s;
+    }
+    .form-control:focus {
+        background: #ffffff;
+        border-color:#8b5cf6; /* violet */
+        box-shadow: 0 0 0 3px rgba(139,92,246,0.3);
+        outline:none;
+    }
+    .form-control::placeholder { color:#9ca3af; }
+
+    /* Button */
+    .login-button {
+        width:100%; padding:1rem;
+        border-radius:15px; border:none;
+        background: linear-gradient(90deg,#8b5cf6,#6d28d9); /* violet gradient */
+        font-weight:600; font-size:1rem; color:white;
+        cursor:pointer; transition: all 0.3s;
+        display:flex; align-items:center; justify-content:center; gap:10px;
+    }
+    .login-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(139,92,246,0.5);
+    }
+
+    /* Flash messages */
+    .flash-messages { margin-bottom:1rem; }
+    .flash-error {
+        background: rgba(239,68,68,0.1); padding:0.75rem; border-radius:12px;
+        font-size:0.9rem; color:#b91c1c; border:1px solid rgba(239,68,68,0.3);
+        animation: shake 0.3s;
+    }
+    @keyframes shake { 0%{transform:translateX(0);}25%{transform:translateX(-5px);}50%{transform:translateX(5px);}75%{transform:translateX(-5px);}100%{transform:translateX(0);} }
+
+    .footer-text { text-align:center; font-size:0.8rem; margin-top:2rem; color:#6b7280; }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+    <img src="/static/PROFIL.png" alt="Web4.Jobs Logo" class="logo">
+    <h1>Connexion Admin</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form action="/authenticate" method="POST" id="loginForm">
+        <div class="form-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email" name="email" id="email" class="form-control" placeholder="Adresse e-mail" required>
+        </div>
+        <div class="form-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" class="form-control" placeholder="Mot de passe" required>
+        </div>
+        <button type="submit" class="login-button">
+            Se connecter <i class="fas fa-arrow-right"></i>
+        </button>
+    </form>
+
+    <p class="footer-text">© 2025 Web4.Jobs. Tous droits réservés.</p>
+</div>
+
+<style>
+    .form-group .error-message {
+        color: #b91c1c;
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+        display: none;
+    }
+</style>
+
+<script>
+const emailInput = document.getElementById('email');
+const loginForm = document.getElementById('loginForm');
+
+const errorMessage = document.createElement('span');
+errorMessage.className = 'error-message';
+errorMessage.textContent = 'Adresse e-mail invalide';
+emailInput.parentNode.appendChild(errorMessage);
+
+function validateEmail() {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    if(emailInput.value.trim() === '') {
+        emailInput.classList.remove('valid','invalid');
+        errorMessage.style.display = 'none';
+        return false;
+    } else if(regex.test(emailInput.value)) {
+        emailInput.classList.add('valid');
+        emailInput.classList.remove('invalid');
+        errorMessage.style.display = 'none';
+        return true;
+    } else {
+        emailInput.classList.add('invalid');
+        emailInput.classList.remove('valid');
+        errorMessage.style.display = 'block';
+        return false;
+    }
+}
+emailInput.addEventListener('input', validateEmail);
+loginForm.addEventListener('submit', (e) => {
+    if(!validateEmail()) {
+        e.preventDefault();
+        emailInput.focus();
+    }
+});
+</script>
+
+</body>
+</html>

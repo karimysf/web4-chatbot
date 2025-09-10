@@ -312,9 +312,12 @@
 
     <div class="main-content">
         <div class="knowledge-base-container">
-            <div class="knowledge-base-header">
-                <h2>Base de connaissances</h2>
-            </div>
+        <div class="knowledge-base-header">
+    <h2>Base de connaissances</h2>
+    <p style="color: red; font-size: 14px; margin-top: 5px;">
+        ⚠️ Veuillez ne pas insérer de données sensibles ou confidentielles dans la base de connaissances.
+    </p>
+</div>
 
             <div class="search-container">
                 <input type="text" placeholder="Rechercher dans la base de connaissances...">
@@ -329,7 +332,7 @@
 
             <div class="form-container" id="knowledge-form">
                 <h3>Ajouter un fichier à la base de connaissances</h3>
-                <form id="knowledgeForm" enctype="multipart/form-data">
+                <form id="knowledgeForm" action="/upload" method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="titre">Titre</label>
                         <input type="text" id="titre" name="titre" required>
@@ -353,7 +356,7 @@
                 {% for file in files %}
                 <div class="file-item">
                     <span>{{ file.titre }}</span>
-                    <a href="{{ url_for('view_file', file_id=file.id) }}" target="_blank">Visualiser</a>
+                    <a href="{{ url_for('upload.view_file', file_id=file.id) }}" target="_blank">Visualiser</a>
                 </div>
                 {% endfor %}
             </div>

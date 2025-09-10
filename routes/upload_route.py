@@ -18,6 +18,8 @@ def allowed_file(filename):
 
 @upload_bp.route('/upload', methods=['POST'])
 def upload_file():
+    print(">>> upload_file() called !")
+
     titre = request.form.get('titre')
     description = request.form.get('description')
     fichier = request.files.get('fichier')
@@ -40,6 +42,11 @@ def upload_file():
 
     conn = get_db_connection()
     cursor = conn.cursor()
+    print("Titre:", titre)
+    print("Description:", description)
+    print("Type fichier:", type_fichier) 
+    print("Lien:", lien_web)
+    print("File size:", len(fichier_data))
 
     try:
         cursor.execute("""

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestion des Responsables de Centre de Coding - Administrateur</title>
+    <style>
+        :root {
+            --primary: #8052e6;
+            --primary-dark: #6a40d0;
+            --primary-light: #9d76f0;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .data-container {
+            padding: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0;
+        }
+/* Assurez-vous que le conteneur principal permet le défilement horizontal */
+.data-grid-container {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Style pour la table */
+.data-grid {
+    min-width: 1200px; /* Ajustez cette valeur selon vos besoins */
+    width: 100%;
+}
+
+/* Style spécifique pour la colonne Actions */
+
+
+/* Style pour les boutons dans la colonne Actions */
+.data-grid td:last-child .btn {
+    min-width: 140px;
+    white-space: nowrap;
+    padding: 10px 15px;
+}
+        .data-grid th {
+            background: var(--primary);
+            color: white;
+            padding: 16px;
+            text-align: left;
+            position: sticky; 
+            top: 0;
+            z-index: 2;
+            font-weight: 500;
+            border-bottom: 2px solid var(--primary-dark);
+        }
+
+        .data-grid td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            min-width: 140px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .data-grid tr:hover td {
+            background-color: rgba(128, 82, 230, 0.05);
+        }
+
+        .data-grid input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: var(--transition);
+        }
+
+        .data-grid input:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(128, 82, 230, 0.2);
+        }
+
+        /* Styles pour champs en lecture seule */
+        .readonly-field {
+            background-color: #f5f5f5;
+            border-color: #e0e0e0;
+            color: #616161;
+            cursor: not-allowed;
+        }
+        
+        /* Style spécifique pour le champ mot de passe */
+        .password-field {
+            background-color: white !important;
+            border-color: #ddd !important;
+        }
+
+        .action-bar {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn i {
+            font-size: 16px;
+        }
+
+        .btn-save {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-download {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #138496;
+            transform: translateY(-1px);
+        }
+
+        .btn-add {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: #e0a800;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-password {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            position: absolute;
+            right: 5px;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
+        /* Search bar */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            gap: 12px;
+        }
+
+        .search-container input {
+            width: 400px;
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        .search-container input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(128, 82, 230, 0.2);
+            outline: none;
+        }
+
+        .search-container button {
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-container button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Validation styles */
+        .validation-message {
+            font-size: 12px;
+            color: var(--danger);
+            margin-top: 6px;
+            display: none;
+        }
+
+        .is-invalid {
+            border-color: var(--danger) !important;
+        }
+
+        .is-valid {
+            border-color: var(--success) !important;
+        }
+
+        /* Status message */
+        .status-message {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-message.success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            display: flex;
+        }
+
+        .status-message.error {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            display: flex;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .data-container {
+                padding: 15px;
+            }
+            
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-container input,
+            .search-container button {
+                width: auto;
+            }
+            
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="data-container">
+        <div class="header">
+            <h1 class="page-title">
+                <i class="fas fa-user-shield"></i> Gestion des Responsables de Centre
+            </h1>
+            <div class="action-bar">
+                <button class="btn btn-download" id="download-btn">
+                    <i class="fas fa-file-excel"></i> Télécharger Excel
+                </button>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Rechercher un responsable par nom, email ou centre...">
+            <button id="search-button">
+                <i class="fas fa-search"></i> Rechercher
+            </button>
+        </div>
+
+        <div id="status-message" class="status-message" style="display: none;"></div>
+
+        <div class="data-grid-container">
+            <table class="data-grid" id="responsablesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Mot de passe</th>
+                        <th>Téléphone</th>
+                        <th>Ville</th>
+                        <th>Centre</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if responsables|length > 0 %}
+                        {% for responsable in responsables %}
+                        <tr data-id="{{ responsable.id }}">
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <input class="readonly-field" data-field="Nom" value="{{ responsable.Nom or '' }}" readonly>
+                            </td>
+                            <td>
+                                <input class="readonly-field" data-field="Prenom" value="{{ responsable.Prenom or '' }}" readonly>
+                            </td>
+                            <td>
+                                <input class="readonly-field" type="email" data-field="AdresseEmail" value="{{ responsable.AdresseEmail or '' }}" readonly>
+                            </td>
+                            <td>
+                                <div class="password-container">
+                                    <input type="password" class="password-field" data-field="MotDePasse" placeholder="Nouveau mot de passe">
+                                    <button class="toggle-password" type="button">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="validation-message" data-for="MotDePasse"></div>
+                            </td>
+                            <td>
+                                <input class="readonly-field" type="tel" data-field="Phone" value="{{ responsable.Phone or '' }}" readonly>
+                            </td>
+                            <td>
+                                <input class="readonly-field" data-field="Ville" value="{{ responsable.Ville or '' }}" readonly>
+                            </td>
+                            <td>
+                                <input class="readonly-field" data-field="Centre" value="{{ responsable.Centre or '' }}" readonly>
+                            </td>
+                            <td>
+                                <button class="btn btn-success" onclick="savePassword(this)">
+                                    <i class="fas fa-save"></i> Enregistrer
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="empty-state">
+                                <i class="fas fa-user-slash" style="font-size: 48px; margin-bottom: 15px;"></i>
+                                <h3>Aucun responsable trouvé</h3>
+                                <p>Cliquez sur "Ajouter" pour créer un nouveau responsable</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Règles de validation pour le mot de passe
+        const passwordRules = {
+            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/,
+            message: "Le mot de passe doit contenir 8+ caractères avec majuscule, minuscule et chiffre"
+        };
+
+        // Fonction pour basculer la visibilité du mot de passe
+        function togglePassword(button) {
+            const input = button.parentElement.querySelector('input');
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Afficher un message de statut
+        function showStatusMessage(message, isSuccess) {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.className = isSuccess ? 'status-message success' : 'status-message error';
+            statusElement.innerHTML = `
+                <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                ${message}
+            `;
+            statusElement.style.display = 'flex';
+            
+            setTimeout(() => {
+                statusElement.style.opacity = '0';
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                    statusElement.style.opacity = '1';
+                }, 300);
+            }, 5000);
+        }
+
+        // Valider le mot de passe
+        function validatePassword(password) {
+            if (!password) return false;
+            return passwordRules.pattern.test(password);
+        }
+
+        // Sauvegarde du mot de passe
+        async function savePassword(button) {
+            const row = button.closest("tr");
+            const responsableId = row.dataset.id;
+            const passwordInput = row.querySelector('input[data-field="MotDePasse"]');
+            const newPassword = passwordInput.value.trim();
+            const errorElement = row.querySelector('.validation-message');
+
+            // Réinitialiser les états d'erreur
+            errorElement.style.display = 'none';
+            passwordInput.classList.remove('is-invalid');
+
+            // Valider le mot de passe
+            if (newPassword && !validatePassword(newPassword)) {
+                errorElement.textContent = passwordRules.message;
+                errorElement.style.display = 'block';
+                passwordInput.classList.add('is-invalid');
+                return;
+            }
+
+            if (!newPassword) {
+                showStatusMessage("Veuillez entrer un nouveau mot de passe", false);
+                return;
+            }
+
+            // Afficher l'état de chargement
+            const originalContent = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> En cours...';
+            button.disabled = true;
+
+            try {
+                const response = await fetch("/admin/update-responsable-passwords", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify([{
+                        id: responsableId,
+                        fields: { MotDePasse: newPassword }
+                    }])
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || "Erreur lors de la mise à jour");
+                }
+
+                showStatusMessage("Mot de passe mis à jour avec succès", true);
+                passwordInput.value = "";
+
+            } catch (error) {
+                console.error("Erreur:", error);
+                showStatusMessage("Erreur: " + error.message, false);
+            } finally {
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            }
+        }
+
+        // Fonction de recherche
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-button');
+            
+            function performSearch() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                let hasResults = false;
+                
+                document.querySelectorAll("#responsablesTable tbody tr").forEach(row => {
+                    if (row.querySelector('.empty-state')) return;
+                    
+                    let rowText = '';
+                    
+                    // Récupérer le texte de tous les champs
+                    row.querySelectorAll('input').forEach(input => {
+                        rowText += input.value.toLowerCase() + ' ';
+                    });
+                    
+                    const isMatch = rowText.includes(searchTerm);
+                    row.style.display = isMatch ? '' : 'none';
+                    if (isMatch) hasResults = true;
+                });
+                
+                // Gérer l'état vide
+                const emptyState = document.querySelector('.empty-state');
+                if (emptyState) {
+                    emptyState.style.display = hasResults ? 'none' : 'table-cell';
+                    emptyState.closest('tr').style.display = hasResults ? 'none' : '';
+                }
+            }
+            
+            // Écouteurs d'événements
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') performSearch();
+            });
+            
+            searchBtn.addEventListener('click', performSearch);
+        }
+
+        // Téléchargement Excel
+        document.getElementById("download-btn").addEventListener("click", function() {
+            showStatusMessage("Préparation du fichier Excel...", true);
+            window.location.href = "/download-responsables-excel";
+        });
+
+        // Initialisation
+        document.addEventListener("DOMContentLoaded", function() {
+            setupSearch();
+            
+            // Initialiser les boutons d'affichage de mot de passe
+            document.querySelectorAll('.toggle-password').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    togglePassword(this);
+                });
+            });
+            
+            // Animation des lignes du tableau
+            document.querySelectorAll("#responsablesTable tbody tr").forEach((row, index) => {
+                if (!row.querySelector('.empty-state')) {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(20px)';
+                    row.style.transition = `all 0.3s ease ${index * 0.05}s`;
+                    
+                    setTimeout(() => {
+                        row.style.opacity = '1';
+                        row.style.transform = 'translateY(0)';
+                    }, 50);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
